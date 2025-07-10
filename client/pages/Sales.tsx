@@ -16,7 +16,7 @@ import { useUser } from "@/hooks/useUser";
 import { apiClient } from "@/lib/api";
 import { CreateSaleRequest, Customer, Product, Sale } from "@shared/api";
 import { format } from "date-fns";
-import { Edit, Plus, Search, Trash2 } from "lucide-react";
+import { Edit, Loader2, Plus, Search, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -114,12 +114,12 @@ export default function Sales() {
 
   const handleDelete = async (id: number) => {
     if (!canEdit) return;
-    if (!confirm("Are you sure you want to delete this sale?")) return;
+    if (!confirm("Siz rostdan ham bu sotuvni o'chirmoqchimisiz?")) return;
     try {
       await apiClient.deleteSale(id);
       setSales(sales.filter((s) => s.id !== id));
     } catch (err) {
-      setError("Failed to delete sale");
+      setError("Sotuvni o'chirishda xatolik yuz berdi");
     }
   };
 
@@ -134,18 +134,28 @@ export default function Sales() {
     setIsSubmitting(true);
     setError("");
     try {
+      const payload = {
+        ...data,
+        date: new Date(data.date).toISOString(),
+        quantity: Number(data.quantity),
+        pricePerUnit: Number(data.pricePerUnit),
+        total: Number(data.total),
+        customerId: Number(data.customerId),
+        productId: Number(data.productId),
+      };
+
       if (editingSale) {
-        const updated = await apiClient.updateSale(editingSale.id, data);
+        const updated = await apiClient.updateSale(editingSale.id, payload);
         setSales(sales.map((s) => (s.id === editingSale.id ? updated : s)));
       } else {
-        const created = await apiClient.createSale(data);
+        const created = await apiClient.createSale(payload);
         setSales([...sales, created]);
       }
       setIsDialogOpen(false);
       reset();
       setEditingSale(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      setError(err instanceof Error ? err.message : "Xatolik yuz berdi");
     } finally {
       setIsSubmitting(false);
     }
@@ -157,9 +167,9 @@ export default function Sales() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Sales</h1>
+            <h1 className="text-3xl font-bold text-foreground">Sotuvlar</h1>
             <p className="text-muted-foreground">
-              Track sales transactions and customer purchases.
+              Sotuvlar va mijoz xaridlarini kuzatib boring.
             </p>
           </div>
           {canEdit && (
@@ -167,18 +177,18 @@ export default function Sales() {
               <DialogTrigger asChild>
                 <Button onClick={handleNewSale} className="gap-2">
                   <Plus className="h-4 w-4" />
-                  New Sale
+                  Yangi sotuv
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
+              <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
-                    {editingSale ? "Edit Sale" : "Record New Sale"}
+                    {editingSale ? "Sotuvni tahrirlash" : "Yangi sotuvni yozib qo'shish"}
                   </DialogTitle>
                   <DialogDescription>
                     {editingSale
-                      ? "Update the sale information below."
-                      : "Enter the details for the new sale."}
+                      ? "Quyidagi sotuv ma'lumotlarini yangilang."
+                      : "Yangi sotuv uchun ma'lumotlarni kiriting."}
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -188,13 +198,13 @@ export default function Sales() {
                     </Alert>
                   )}
                   <div className="space-y-2">
-                    <Label htmlFor="customerId">Customer</Label>
+                    <Label htmlFor="customerId">Mijoz</Label>
                     <select
                       id="customerId"
-                      {...register("customerId", { required: "Customer is required" })}
+                      {...register("customerId", { required: "Mijoz talab etiladi" })}
                       className="w-full border rounded p-2"
                     >
-                      <option value="">Select customer</option>
+                      <option value="">Mijozni tanlang</option>
                       {customers.map((c) => (
                         <option key={c.id} value={c.id}>
                           {c.name}
@@ -206,13 +216,13 @@ export default function Sales() {
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="productId">Product</Label>
+                    <Label htmlFor="productId">Mahsulot</Label>
                     <select
                       id="productId"
-                      {...register("productId", { required: "Product is required" })}
+                      {...register("productId", { required: "Mahsulot talab etiladi" })}
                       className="w-full border rounded p-2"
                     >
-                      <option value="">Select product</option>
+                      <option value="">Mahsulotni tanlang</option>
                       {products.map((p) => (
                         <option key={p.id} value={p.id}>
                           {p.name}
@@ -224,47 +234,47 @@ export default function Sales() {
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="date">Date</Label>
+                    <Label htmlFor="date">Sana</Label>
                     <Input
                       id="date"
                       type="date"
-                      {...register("date", { required: "Date is required" })}
+                      {...register("date", { required: "Sana talab etiladi" })}
                     />
                     {errors.date && (
                       <p className="text-sm text-destructive">{errors.date.message}</p>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="quantity">Quantity</Label>
+                    <Label htmlFor="quantity">Miqdor</Label>
                     <Input
                       id="quantity"
                       type="number"
                       step="0.01"
-                      {...register("quantity", { required: "Quantity is required", min: 0 })}
+                      {...register("quantity", { required: "Miqdor talab etiladi", min: 0 })}
                     />
                     {errors.quantity && (
                       <p className="text-sm text-destructive">{errors.quantity.message}</p>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="pricePerUnit">Price Per Unit</Label>
+                    <Label htmlFor="pricePerUnit">Narxi birligi</Label>
                     <Input
                       id="pricePerUnit"
                       type="number"
                       step="0.01"
-                      {...register("pricePerUnit", { required: "Price per unit is required", min: 0 })}
+                      {...register("pricePerUnit", { required: "Narxi birligi talab etiladi", min: 0 })}
                     />
                     {errors.pricePerUnit && (
                       <p className="text-sm text-destructive">{errors.pricePerUnit.message}</p>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="total">Total</Label>
+                    <Label htmlFor="total">Jami</Label>
                     <Input
                       id="total"
                       type="number"
                       step="0.01"
-                      {...register("total", { required: "Total is required", min: 0 })}
+                      {...register("total", { required: "Jami talab etiladi", min: 0 })}
                       readOnly
                     />
                   </div>
@@ -274,17 +284,17 @@ export default function Sales() {
                       variant="outline"
                       onClick={() => setIsDialogOpen(false)}
                     >
-                      Cancel
+                      Bekor qilish
                     </Button>
                     <Button type="submit" disabled={isSubmitting}>
                       {isSubmitting ? (
                         <>
-                          {editingSale ? "Updating..." : "Creating..."}
+                          {editingSale ? "Yangilanmoqda..." : "Yaratilmoqda..."}
                         </>
                       ) : editingSale ? (
-                        "Update Sale"
+                        "Sotuvni yangilash"
                       ) : (
-                        "Create Sale"
+                        "Sotuvni yaratish"
                       )}
                     </Button>
                   </div>
@@ -297,7 +307,7 @@ export default function Sales() {
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
-            placeholder="Search sales..."
+            placeholder="Sotuvlarni qidiring..."
             className="pl-10"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -305,14 +315,17 @@ export default function Sales() {
         </div>
         {/* Sales List */}
         {isLoading ? (
-          <div className="py-16 text-center">Loading...</div>
+          <div className="py-16 text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+            <p className="text-muted-foreground">Yuklanmoqda...</p>
+          </div>
         ) : filteredSales.length === 0 ? (
           <Card>
             <CardContent className="py-16 text-center">
               <p className="text-muted-foreground">
                 {searchTerm
-                  ? "No sales found matching your search."
-                  : "No sales recorded yet."}
+                  ? "Qidiruv bo'yicha sotuv topilmadi."
+                  : "Hali sotuvlar yozilmagan."}
               </p>
               {!searchTerm && canEdit && (
                 <Button
@@ -321,7 +334,7 @@ export default function Sales() {
                   className="mt-4 gap-2"
                 >
                   <Plus className="h-4 w-4" />
-                  Record Your First Sale
+                  Birinchi sotuvingizni yozib qo'shing
                 </Button>
               )}
             </CardContent>
@@ -334,22 +347,22 @@ export default function Sales() {
                   <div className="flex items-start justify-between">
                     <div>
                       <CardTitle className="text-lg">
-                        {sale.customer?.name || `Customer #${sale.customerId}`}
+                        {sale.customer?.name || `Mijoz #${sale.customerId}`}
                       </CardTitle>
                       <CardDescription className="flex items-center gap-1 mt-1">
-                        Product: {sale.product?.name || `Product #${sale.productId}`}
+                        Mahsulot: {sale.product?.name || `Mahsulot #${sale.productId}`}
                       </CardDescription>
                       <CardDescription className="flex items-center gap-1 mt-1">
-                        Date: {format(new Date(sale.date), "yyyy-MM-dd")}
+                        Sana: {format(new Date(sale.date), "yyyy-MM-dd")}
                       </CardDescription>
                       <CardDescription className="flex items-center gap-1 mt-1">
-                        Quantity: {sale.quantity}
+                        Miqdor: {sale.quantity}
                       </CardDescription>
                       <CardDescription className="flex items-center gap-1 mt-1">
-                        Price: ${sale.pricePerUnit}
+                        Narxi: {sale.pricePerUnit} so'm
                       </CardDescription>
                       <CardDescription className="flex items-center gap-1 mt-1">
-                        Total: ${sale.total}
+                        Jami: {sale.total} so'm
                       </CardDescription>
                     </div>
                     {canEdit && (
@@ -365,14 +378,14 @@ export default function Sales() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => { handleEdit(sale); setOpenSaleMenu(null); }}>
                             <Edit className="mr-2 h-4 w-4" />
-                            Edit
+                            Tahrirlash
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => { handleDelete(sale.id); setOpenSaleMenu(null); }}
                             className="text-destructive"
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
+                            O'chirish
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

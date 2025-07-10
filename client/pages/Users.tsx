@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { useUser } from "@/hooks/useUser";
 import { apiClient } from "@/lib/api";
 import { RegisterRequest, User } from "@shared/api";
-import { Edit, Plus, Search, Settings, Shield, Trash2 } from "lucide-react";
+import { Edit, Loader2, Plus, Search, Settings, Shield, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -145,37 +145,37 @@ export default function Users() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-foreground">
-              User Management
+              Foydalanuvchilarni boshqarish
             </h1>
             <p className="text-muted-foreground">
-              Manage system users and their permissions.
+              Tizim foydalanuvchilari va ularning ruxsatlarini boshqaring.
             </p>
             <div className="flex items-center gap-2 mt-2">
               <Badge variant="secondary" className="gap-1">
                 <Shield className="h-3 w-3" />
-                Admin Only
+                Faqat admin
               </Badge>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" className="gap-2" onClick={fetchUsers}>
               <Settings className="h-4 w-4" />
-              Refresh
+              Yangilash
             </Button>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button onClick={handleNewUser} className="gap-2">
                   <Plus className="h-4 w-4" />
-                  Add User
+                  Foydalanuvchi qo'shish
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
+              <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
-                    Add New User
+                    Yangi foydalanuvchi qo'shish
                   </DialogTitle>
                   <DialogDescription>
-                    Enter the details for the new user.
+                    Yangi foydalanuvchi uchun ma'lumotlarni kiriting.
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -185,33 +185,33 @@ export default function Users() {
                     </Alert>
                   )}
                   <div className="space-y-2">
-                    <Label htmlFor="username">Username</Label>
+                    <Label htmlFor="username">Foydalanuvchi nomi</Label>
                     <Input
                       id="username"
-                      placeholder="Enter username"
-                      {...register("username", { required: "Username is required" })}
+                      placeholder="Foydalanuvchi nomini kiriting"
+                      {...register("username", { required: "Foydalanuvchi nomi majburiy" })}
                     />
                     {errors.username && (
                       <p className="text-sm text-destructive">{errors.username.message}</p>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password">Parol</Label>
                     <Input
                       id="password"
                       type="password"
-                      placeholder="Enter password"
-                      {...register("password", { required: "Password is required", minLength: { value: 6, message: "Password must be at least 6 characters" } })}
+                      placeholder="Parolni kiriting"
+                      {...register("password", { required: "Parol majburiy" })}
                     />
                     {errors.password && (
                       <p className="text-sm text-destructive">{errors.password.message}</p>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="role">Role</Label>
+                    <Label htmlFor="role">Rol</Label>
                     <select
                       id="role"
-                      {...register("role", { required: "Role is required" })}
+                      {...register("role", { required: "Rol majburiy" })}
                       className="w-full border rounded p-2"
                     >
                       {ROLES.map((role) => (
@@ -230,10 +230,10 @@ export default function Users() {
                       variant="outline"
                       onClick={() => setIsDialogOpen(false)}
                     >
-                      Cancel
+                      Bekor qilish
                     </Button>
                     <Button type="submit" disabled={isSubmitting}>
-                      {isSubmitting ? "Creating..." : "Create User"}
+                      {isSubmitting ? "Yaratilmoqda..." : "Foydalanuvchini yaratish"}
                     </Button>
                   </div>
                 </form>
@@ -245,7 +245,7 @@ export default function Users() {
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
-            placeholder="Search users..."
+            placeholder="Foydalanuvchilarni qidiring..."
             className="pl-10"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -253,14 +253,17 @@ export default function Users() {
         </div>
         {/* Users List */}
         {isLoading ? (
-          <div className="py-16 text-center">Loading...</div>
+          <div className="py-16 text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+            <p className="text-muted-foreground">Yuklanmoqda...</p>
+          </div>
         ) : filteredUsers.length === 0 ? (
           <Card>
             <CardContent className="py-16 text-center">
               <p className="text-muted-foreground">
                 {searchTerm
-                  ? "No users found matching your search."
-                  : "No users in the system yet."}
+                  ? "Qidiruv bo'yicha foydalanuvchi topilmadi."
+                  : "Tizimda hali foydalanuvchilar yo'q."}
               </p>
             </CardContent>
           </Card>

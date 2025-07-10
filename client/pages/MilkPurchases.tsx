@@ -16,7 +16,8 @@ import { useUser } from "@/hooks/useUser";
 import { apiClient } from "@/lib/api";
 import { CreateMilkPurchaseRequest, MilkPurchase, Supplier } from "@shared/api";
 import { format } from "date-fns";
-import { Edit, Plus, Search, Trash2 } from "lucide-react";
+import dayjs from "dayjs";
+import { Edit, Loader2, Plus, Search, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -100,12 +101,12 @@ export default function MilkPurchases() {
 
   const handleDelete = async (id: number) => {
     if (!canEdit) return;
-    if (!confirm("Are you sure you want to delete this purchase?")) return;
+    if (!confirm("Xaridni o'chirishni xohlaysizmi?")) return;
     try {
       await apiClient.deleteMilkPurchase(id);
       setPurchases(purchases.filter((p) => p.id !== id));
     } catch (err) {
-      setError("Failed to delete purchase");
+      setError("Xaridni o'chirishda muammo yuz berdi");
     }
   };
 
@@ -120,18 +121,29 @@ export default function MilkPurchases() {
     setIsSubmitting(true);
     setError("");
     try {
+      const payload = {
+        ...data,
+        date: new Date(data.date).toISOString(),
+        quantityLiters: Number(data.quantityLiters),
+        pricePerLiter: Number(data.pricePerLiter),
+        total: Number(data.total),
+        supplierId: Number(data.supplierId),
+      };
+
       if (editingPurchase) {
-        const updated = await apiClient.updateMilkPurchase(editingPurchase.id, data);
+        // updated now includes the full supplier object
+        const updated = await apiClient.updateMilkPurchase(editingPurchase.id, payload);
         setPurchases(purchases.map((p) => (p.id === editingPurchase.id ? updated : p)));
       } else {
-        const created = await apiClient.createMilkPurchase(data);
+        // created now includes the full supplier object
+        const created = await apiClient.createMilkPurchase(payload);
         setPurchases([...purchases, created]);
       }
       setIsDialogOpen(false);
       reset();
       setEditingPurchase(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      setError(err instanceof Error ? err.message : "Xatolik yuz berdi");
     } finally {
       setIsSubmitting(false);
     }
@@ -144,10 +156,10 @@ export default function MilkPurchases() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-foreground">
-              Milk Purchases
+              Sut xaridlari
             </h1>
             <p className="text-muted-foreground">
-              Record and track milk procurement from suppliers.
+              Yetkazib beruvchilardan sut xaridlarini yozib boring va kuzatib boring.
             </p>
           </div>
           {canEdit && (
@@ -155,18 +167,18 @@ export default function MilkPurchases() {
               <DialogTrigger asChild>
                 <Button onClick={handleNewPurchase} className="gap-2">
                   <Plus className="h-4 w-4" />
-                  Record Purchase
+                  Xarid yozish
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
+              <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
-                    {editingPurchase ? "Edit Purchase" : "Record New Purchase"}
+                    {editingPurchase ? "Xaridni tahrirlash" : "Yangi xarid yozish"}
                   </DialogTitle>
                   <DialogDescription>
                     {editingPurchase
-                      ? "Update the purchase information below."
-                      : "Enter the details for the new milk purchase."}
+                      ? "Quyidagi xarid ma'lumotlarini yangilang."
+                      : "Yangi sut xaridi uchun ma'lumotlarni kiriting."}
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -176,13 +188,13 @@ export default function MilkPurchases() {
                     </Alert>
                   )}
                   <div className="space-y-2">
-                    <Label htmlFor="supplierId">Supplier</Label>
+                    <Label htmlFor="supplierId">Yetkazib beruvchi</Label>
                     <select
                       id="supplierId"
-                      {...register("supplierId", { required: "Supplier is required" })}
+                      {...register("supplierId", { required: "Yetkazib beruvchi majburiy" })}
                       className="w-full border rounded p-2"
                     >
-                      <option value="">Select supplier</option>
+                      <option value="">Yetkazib beruvchini tanlang</option>
                       {suppliers.map((s) => (
                         <option key={s.id} value={s.id}>
                           {s.name}
@@ -194,47 +206,47 @@ export default function MilkPurchases() {
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="date">Date</Label>
+                    <Label htmlFor="date">Sana</Label>
                     <Input
                       id="date"
                       type="date"
-                      {...register("date", { required: "Date is required" })}
+                      {...register("date", { required: "Sana majburiy" })}
                     />
                     {errors.date && (
                       <p className="text-sm text-destructive">{errors.date.message}</p>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="quantityLiters">Quantity (Liters)</Label>
+                    <Label htmlFor="quantityLiters">Miqdor (litr)</Label>
                     <Input
                       id="quantityLiters"
                       type="number"
                       step="0.01"
-                      {...register("quantityLiters", { required: "Quantity is required", min: 0 })}
+                      {...register("quantityLiters", { required: "Miqdor majburiy", min: 0 })}
                     />
                     {errors.quantityLiters && (
                       <p className="text-sm text-destructive">{errors.quantityLiters.message}</p>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="pricePerLiter">Price Per Liter</Label>
+                    <Label htmlFor="pricePerLiter">1 litr narxi</Label>
                     <Input
                       id="pricePerLiter"
                       type="number"
                       step="0.01"
-                      {...register("pricePerLiter", { required: "Price per liter is required", min: 0 })}
+                      {...register("pricePerLiter", { required: "1 litr narxi majburiy", min: 0 })}
                     />
                     {errors.pricePerLiter && (
                       <p className="text-sm text-destructive">{errors.pricePerLiter.message}</p>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="total">Total</Label>
+                    <Label htmlFor="total">Jami</Label>
                     <Input
                       id="total"
                       type="number"
                       step="0.01"
-                      {...register("total", { required: "Total is required", min: 0 })}
+                      {...register("total", { required: "Jami majburiy", min: 0 })}
                       readOnly
                     />
                   </div>
@@ -244,17 +256,17 @@ export default function MilkPurchases() {
                       variant="outline"
                       onClick={() => setIsDialogOpen(false)}
                     >
-                      Cancel
+                      Bekor qilish
                     </Button>
                     <Button type="submit" disabled={isSubmitting}>
                       {isSubmitting ? (
                         <>
-                          {editingPurchase ? "Updating..." : "Creating..."}
+                          {editingPurchase ? "Yangilanmoqda..." : "Yaratilmoqda..."}
                         </>
                       ) : editingPurchase ? (
-                        "Update Purchase"
+                        "Xaridni yangilash"
                       ) : (
-                        "Create Purchase"
+                        "Xaridni yaratish"
                       )}
                     </Button>
                   </div>
@@ -267,7 +279,7 @@ export default function MilkPurchases() {
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
-            placeholder="Search purchases..."
+            placeholder="Xaridlarni qidiring..."
             className="pl-10"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -275,14 +287,16 @@ export default function MilkPurchases() {
         </div>
         {/* Purchases List */}
         {isLoading ? (
-          <div className="py-16 text-center">Loading...</div>
+          <div className="py-16 text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          </div>
         ) : filteredPurchases.length === 0 ? (
           <Card>
             <CardContent className="py-16 text-center">
               <p className="text-muted-foreground">
                 {searchTerm
-                  ? "No purchases found matching your search."
-                  : "No milk purchases recorded yet."}
+                  ? "Qidiruv bo'yicha xarid topilmadi."
+                  : "Hali sut xaridlari yozilmagan."}
               </p>
               {!searchTerm && canEdit && (
                 <Button
@@ -291,7 +305,7 @@ export default function MilkPurchases() {
                   className="mt-4 gap-2"
                 >
                   <Plus className="h-4 w-4" />
-                  Record Your First Purchase
+                  Birinchi xaridni yozish
                 </Button>
               )}
             </CardContent>
@@ -304,19 +318,19 @@ export default function MilkPurchases() {
                   <div className="flex items-start justify-between">
                     <div>
                       <CardTitle className="text-lg">
-                        {purchase.supplier?.name || `Supplier #${purchase.supplierId}`}
+                        {purchase.supplier?.name || `Yetkazib beruvchi #${purchase.supplierId}`}
                       </CardTitle>
                       <CardDescription className="flex items-center gap-1 mt-1">
-                        Date: {format(new Date(purchase.date), "yyyy-MM-dd")}
+                        Sana: {dayjs(String(purchase.date)).format("YYYY-MM-DD")}
                       </CardDescription>
                       <CardDescription className="flex items-center gap-1 mt-1">
-                        Quantity: {purchase.quantityLiters} L
+                        Miqdor: {purchase.quantityLiters} L
                       </CardDescription>
                       <CardDescription className="flex items-center gap-1 mt-1">
-                        Price: ${purchase.pricePerLiter} / L
+                        Narxi: {purchase.pricePerLiter} so'm / L
                       </CardDescription>
                       <CardDescription className="flex items-center gap-1 mt-1">
-                        Total: ${purchase.total}
+                        Jami: {purchase.total} so'm
                       </CardDescription>
                     </div>
                     {canEdit && (
@@ -332,14 +346,14 @@ export default function MilkPurchases() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => { handleEdit(purchase); setOpenPurchaseMenu(null); }}>
                             <Edit className="mr-2 h-4 w-4" />
-                            Edit
+                            Tahrirlash
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => { handleDelete(purchase.id); setOpenPurchaseMenu(null); }}
                             className="text-destructive"
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
+                            O'chirish
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { useUser } from "@/hooks/useUser";
 import { apiClient } from "@/lib/api";
 import { CreateProductRequest, Product } from "@shared/api";
-import { Edit, Plus, Search, Trash2 } from "lucide-react";
+import { Edit, Loader2, Plus, Search, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -83,12 +83,12 @@ export default function Products() {
 
   const handleDelete = async (id: number) => {
     if (!canEdit) return;
-    if (!confirm("Are you sure you want to delete this product?")) return;
+    if (!confirm("Mahsulotni o'chirmoqchimisiz?")) return;
     try {
       await apiClient.deleteProduct(id);
       setProducts(products.filter((p) => p.id !== id));
     } catch (err) {
-      setError("Failed to delete product");
+      setError("Mahsulotni o'chirishda xatolik yuz berdi.");
     }
   };
 
@@ -97,17 +97,25 @@ export default function Products() {
     setError("");
     try {
       if (editingProduct) {
-        const updated = await apiClient.updateProduct(editingProduct.id, data);
+        const updated = await apiClient.updateProduct(
+          editingProduct.id,
+          {
+            ...data,
+            pricePerUnit: Number(data.pricePerUnit)
+          });
         setProducts(products.map((p) => (p.id === editingProduct.id ? updated : p)));
       } else {
-        const created = await apiClient.createProduct(data);
+        const created = await apiClient.createProduct({
+          ...data,
+          pricePerUnit: Number(data.pricePerUnit)
+        });
         setProducts([...products, created]);
       }
       setIsDialogOpen(false);
       reset();
       setEditingProduct(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      setError(err instanceof Error ? err.message : "Xatolik yuz berdi.");
     } finally {
       setIsSubmitting(false);
     }
@@ -119,9 +127,9 @@ export default function Products() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Products</h1>
+            <h1 className="text-3xl font-bold text-foreground">Mahsulotlar</h1>
             <p className="text-muted-foreground">
-              Manage your product catalog and pricing.
+              Mahsulot katalogi va narxlarini boshqaring.
             </p>
           </div>
           {canEdit && (
@@ -129,18 +137,18 @@ export default function Products() {
               <DialogTrigger asChild>
                 <Button onClick={handleNewProduct} className="gap-2">
                   <Plus className="h-4 w-4" />
-                  Add Product
+                  Mahsulot qo'shish
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
+              <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
-                    {editingProduct ? "Edit Product" : "Add New Product"}
+                    {editingProduct ? "Mahsulotni tahrirlash" : "Yangi mahsulot qo'shish"}
                   </DialogTitle>
                   <DialogDescription>
                     {editingProduct
-                      ? "Update the product information below."
-                      : "Enter the details for the new product."}
+                      ? "Quyidagi mahsulot ma'lumotlarini yangilang."
+                      : "Yangi mahsulot uchun ma'lumotlarni kiriting."}
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -150,35 +158,38 @@ export default function Products() {
                     </Alert>
                   )}
                   <div className="space-y-2">
-                    <Label htmlFor="name">Product Name</Label>
+                    <Label htmlFor="name">Mahsulot nomi</Label>
                     <Input
                       id="name"
-                      placeholder="Enter product name"
-                      {...register("name", { required: "Product name is required" })}
+                      placeholder="Mahsulot nomini kiriting"
+                      {...register("name", { required: "Mahsulot nomi majburiy" })}
                     />
                     {errors.name && (
                       <p className="text-sm text-destructive">{errors.name.message}</p>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="unit">Unit</Label>
+                    <Label htmlFor="unit">O'lchov birligi</Label>
                     <Input
                       id="unit"
-                      placeholder="Enter unit (e.g. Liter, Kg, Piece)"
-                      {...register("unit", { required: "Unit is required" })}
+                      placeholder="O'lchov birligini kiriting (masalan, Litr, Kg, Dona)"
+                      {...register("unit", { required: "O'lchov birligi majburiy" })}
                     />
                     {errors.unit && (
                       <p className="text-sm text-destructive">{errors.unit.message}</p>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="pricePerUnit">Price Per Unit</Label>
+                    <Label htmlFor="pricePerUnit">Bir dona narxi</Label>
                     <Input
                       id="pricePerUnit"
                       type="number"
                       step="0.01"
-                      placeholder="Enter price per unit"
-                      {...register("pricePerUnit", { required: "Price per unit is required", min: 0 })}
+                      placeholder="Bir dona narxini kiriting"
+                      {...register("pricePerUnit", {
+                        required: "Bir dona narxi majburiy",
+                        min: 0
+                      })}
                     />
                     {errors.pricePerUnit && (
                       <p className="text-sm text-destructive">{errors.pricePerUnit.message}</p>
@@ -190,17 +201,17 @@ export default function Products() {
                       variant="outline"
                       onClick={() => setIsDialogOpen(false)}
                     >
-                      Cancel
+                      Bekor qilish
                     </Button>
                     <Button type="submit" disabled={isSubmitting}>
                       {isSubmitting ? (
                         <>
-                          {editingProduct ? "Updating..." : "Creating..."}
+                          {editingProduct ? "Yangilanmoqda..." : "Yaratilmoqda..."}
                         </>
                       ) : editingProduct ? (
-                        "Update Product"
+                        "Mahsulotni yangilash"
                       ) : (
-                        "Create Product"
+                        "Mahsulotni yaratish"
                       )}
                     </Button>
                   </div>
@@ -213,7 +224,7 @@ export default function Products() {
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
-            placeholder="Search products..."
+            placeholder="Mahsulotlarni qidiring..."
             className="pl-10"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -221,14 +232,17 @@ export default function Products() {
         </div>
         {/* Products List */}
         {isLoading ? (
-          <div className="py-16 text-center">Loading...</div>
+          <div className="py-16 text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+            <p className="text-muted-foreground">Yuklanmoqda...</p>
+          </div>
         ) : filteredProducts.length === 0 ? (
           <Card>
             <CardContent className="py-16 text-center">
               <p className="text-muted-foreground">
                 {searchTerm
-                  ? "No products found matching your search."
-                  : "No products added yet."}
+                  ? "Qidiruv bo'yicha mahsulot topilmadi."
+                  : "Hali mahsulotlar qo'shilmagan."}
               </p>
               {!searchTerm && canEdit && (
                 <Button
@@ -237,7 +251,7 @@ export default function Products() {
                   className="mt-4 gap-2"
                 >
                   <Plus className="h-4 w-4" />
-                  Add Your First Product
+                  Birinchi mahsulotingizni qo'shing
                 </Button>
               )}
             </CardContent>
@@ -251,10 +265,10 @@ export default function Products() {
                     <div>
                       <CardTitle className="text-lg">{product.name}</CardTitle>
                       <CardDescription className="flex items-center gap-1 mt-1">
-                        Unit: {product.unit}
+                        O'lchov birligi: {product.unit}
                       </CardDescription>
                       <CardDescription className="flex items-center gap-1 mt-1">
-                        Price: ${product.pricePerUnit}
+                        Narxi: {product.pricePerUnit} so'm
                       </CardDescription>
                     </div>
                     {canEdit && (
@@ -270,14 +284,14 @@ export default function Products() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => { handleEdit(product); setOpenProductMenu(null); }}>
                             <Edit className="mr-2 h-4 w-4" />
-                            Edit
+                            Tahrirlash
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => { handleDelete(product.id); setOpenProductMenu(null); }}
                             className="text-destructive"
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
+                            O'chirish
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

@@ -30,7 +30,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
 
         <div className="text-center mt-6">
           <p className="text-xs text-muted-foreground">
-            © 2024 DailyDairy. Modern dairy management solution.
+            © 2025 DailyDairy. Modern dairy management solution.
           </p>
         </div>
       </div>

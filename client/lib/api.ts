@@ -26,12 +26,12 @@ import {
 const API_BASE_URL = "https://daily-dairy-backend-production.up.railway.app/api";
 
 class ApiClient {
-  private getAuthHeaders(): HeadersInit {
+  public getAuthHeaders(): HeadersInit {
     const token = localStorage.getItem("dairy_auth_token");
     return token ? { Authorization: `Bearer ${token}` } : {};
   }
 
-  private async request<T>(
+  public async request<T>(
     endpoint: string,
     options: RequestInit = {},
   ): Promise<T> {
@@ -47,6 +47,11 @@ class ApiClient {
 
     try {
       const response = await fetch(url, config);
+
+      if (response.status === 401) {
+        window.location.href = "/login";
+        throw new Error("Unauthorized");
+      }
 
       if (!response.ok) {
         const errorData: ApiError = await response.json().catch(() => ({
@@ -187,13 +192,12 @@ class ApiClient {
   async updateCustomer(
     id: number,
     data: UpdateCustomerRequest,
-  ): Promise<Customer> {
-    return this.request<Customer>(`/customers/${id}`, {
+  ): Promise<{ customer: Customer }> {
+    return this.request<{ customer: Customer }>(`/customers/${id}`, {
       method: "PUT",
       body: JSON.stringify(data),
     });
   }
-
   async deleteCustomer(id: number): Promise<void> {
     return this.request<void>(`/customers/${id}`, {
       method: "DELETE",

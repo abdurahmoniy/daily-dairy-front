@@ -1,15 +1,15 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { AuthLayout } from "@/components/layout/auth-layout";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AuthLayout } from "@/components/layout/auth-layout";
-import { useAuth } from "@/lib/auth";
 import { apiClient } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 import { LoginRequest } from "@shared/api";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -41,8 +41,8 @@ export default function Login() {
 
   return (
     <AuthLayout
-      title="Welcome Back"
-      subtitle="Sign in to your dairy management account"
+      title="Xush kelibsiz"
+      subtitle="Sut mahsulotlari boshqaruv hisobingizga kiring"
     >
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {error && (
@@ -52,12 +52,12 @@ export default function Login() {
         )}
 
         <div className="space-y-2">
-          <Label htmlFor="username">Username</Label>
+          <Label htmlFor="username">Foydalanuvchi nomi</Label>
           <Input
             id="username"
             type="text"
-            placeholder="Enter your username"
-            {...register("username", { required: "Username is required" })}
+            placeholder="Foydalanuvchi nomini kiriting"
+            {...register("username", { required: "Foydalanuvchi nomi majburiy" })}
             className="h-11"
           />
           {errors.username && (
@@ -68,13 +68,13 @@ export default function Login() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">Parol</Label>
           <div className="relative">
             <Input
               id="password"
               type={showPassword ? "text" : "password"}
-              placeholder="Enter your password"
-              {...register("password", { required: "Password is required" })}
+              placeholder="Parolni kiriting"
+              {...register("password", { required: "Parol majburiy" })}
               className="h-11 pr-10"
             />
             <Button
@@ -102,14 +102,14 @@ export default function Login() {
           {isLoading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Signing in...
+              Kirish...
             </>
           ) : (
-            "Sign In"
+            "Kirish"
           )}
         </Button>
 
-        <div className="text-center">
+        {/* <div className="text-center">
           <p className="text-sm text-muted-foreground">
             Don't have an account?{" "}
             <Link
@@ -119,7 +119,7 @@ export default function Login() {
               Sign up
             </Link>
           </p>
-        </div>
+        </div> */}
       </form>
     </AuthLayout>
   );

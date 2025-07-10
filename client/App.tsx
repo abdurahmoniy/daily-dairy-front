@@ -1,24 +1,24 @@
 import "./global.css";
 
-import { Toaster } from "@/components/ui/toaster";
-import { createRoot } from "react-dom/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./components/auth-provider";
 import { ProtectedRoute } from "./components/protected-route";
+import AdminSessions from "./pages/AdminSessions";
+import Customers from "./pages/Customers";
+import Dashboard from "./pages/Dashboard";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
-import Suppliers from "./pages/Suppliers";
-import Customers from "./pages/Customers";
-import Products from "./pages/Products";
 import MilkPurchases from "./pages/MilkPurchases";
-import Sales from "./pages/Sales";
-import Users from "./pages/Users";
 import NotFound from "./pages/NotFound";
+import Products from "./pages/Products";
+import Sales from "./pages/Sales";
+import Suppliers from "./pages/Suppliers";
+import Users from "./pages/Users";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,7 +39,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            {/* <Route path="/register" element={<Register />} /> */}
 
             <Route
               path="/dashboard"
@@ -100,6 +100,15 @@ const App = () => (
               element={
                 <ProtectedRoute requiredRole="ADMIN">
                   <Users />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin-sessions"
+              element={
+                <ProtectedRoute requiredRole="ADMIN">
+                  <AdminSessions />
                 </ProtectedRoute>
               }
             />

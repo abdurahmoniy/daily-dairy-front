@@ -7,6 +7,7 @@ import {
   Menu,
   Milk,
   Package,
+  Shield,
   ShoppingCart,
   Truck,
   User,
@@ -20,18 +21,19 @@ interface DashboardLayoutProps {
 }
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Suppliers", href: "/suppliers", icon: Truck },
-  { name: "Customers", href: "/customers", icon: Users },
-  { name: "Products", href: "/products", icon: Package },
-  { name: "Milk Purchases", href: "/milk-purchases", icon: Milk },
-  { name: "Sales", href: "/sales", icon: ShoppingCart },
-  // { name: "Reports", href: "/reports", icon: BarChart3 },
+  { name: "Boshqaruv paneli", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Yetkazib beruvchilar", href: "/suppliers", icon: Truck },
+  { name: "Mijozlar", href: "/customers", icon: Users },
+  { name: "Mahsulotlar", href: "/products", icon: Package },
+  { name: "Sut xaridlari", href: "/milk-purchases", icon: Milk },
+  { name: "Sotuvlar", href: "/sales", icon: ShoppingCart },
+  // { name: "Hisobotlar", href: "/reports", icon: BarChart3 },
 ];
 
 const adminNavigation = [
-  { name: "User Management", href: "/users", icon: User },
-  // { name: "System Settings", href: "/settings", icon: Settings },
+  { name: "Foydalanuvchilarni boshqarish", href: "/users", icon: User },
+  { name: "Admin sessiyalari", href: "/admin-sessions", icon: Shield },
+  // { name: "Tizim sozlamalari", href: "/settings", icon: Settings },
 ];
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
@@ -62,7 +64,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           <h1 className="text-lg font-bold text-sidebar-foreground">
             DailyDairy
           </h1>
-          <p className="text-xs text-sidebar-foreground/60">Dairy Management</p>
+          <p className="text-xs text-sidebar-foreground/60">Sut mahsulotlari boshqaruvi</p>
         </div>
       </div>
 
@@ -89,7 +91,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           <>
             <div className="h-px bg-sidebar-border my-4" />
             <div className="px-3 py-2 text-xs font-semibold text-sidebar-foreground/60 uppercase tracking-wider">
-              Administration
+              Administratsiya
             </div>
             {adminNavigation.map((item) => (
               <Link
@@ -121,7 +123,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <p className="text-sm font-medium text-sidebar-foreground truncate">
               {user?.username}
             </p>
-            <p className="text-xs text-sidebar-foreground/60">{user?.role}</p>
+            <p className="text-xs text-sidebar-foreground/60">{user?.role === "ADMIN" ? "Admin" : user?.role === "MANAGER" ? "Menejer" : "Foydalanuvchi"}</p>
           </div>
           <Button
             variant="ghost"

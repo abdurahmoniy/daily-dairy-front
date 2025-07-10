@@ -1,16 +1,4 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import {
-  Truck,
-  Users,
-  Package,
-  Milk,
-  ShoppingCart,
-  DollarSign,
-  TrendingUp,
-  Calendar,
-  MoreHorizontal,
-} from "lucide-react";
+import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -19,11 +7,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { apiClient } from "@/lib/api";
 import { DashboardSummary, MilkPurchase, Sale } from "@shared/api";
 import { format } from "date-fns";
+import {
+  Calendar,
+  DollarSign,
+  Milk,
+  Package,
+  ShoppingCart,
+  TrendingUp,
+  Truck,
+  Users
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function Dashboard() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
@@ -63,34 +61,34 @@ export default function Dashboard() {
 
   const summaryCards = [
     {
-      title: "Total Suppliers",
+      title: "Yetkazib beruvchilar soni",
       value: summary?.suppliers || 0,
       icon: Truck,
-      description: "Active suppliers",
+      description: "Faol yetkazib beruvchilar",
       color: "text-blue-600",
       bgColor: "bg-blue-50",
     },
     {
-      title: "Total Customers",
+      title: "Mijozlar soni",
       value: summary?.customers || 0,
       icon: Users,
-      description: "Registered customers",
+      description: "Ro'yxatdan o'tgan mijozlar",
       color: "text-green-600",
       bgColor: "bg-green-50",
     },
     {
-      title: "Products",
+      title: "Mahsulotlar",
       value: summary?.products || 0,
       icon: Package,
-      description: "Available products",
+      description: "Mavjud mahsulotlar",
       color: "text-purple-600",
       bgColor: "bg-purple-50",
     },
     {
-      title: "Total Revenue",
-      value: `$${summary?.totalRevenue?.toLocaleString() || 0}`,
+      title: "Umumiy daromad",
+      value: `${summary?.totalRevenue?.toLocaleString() || 0} so'm`,
       icon: DollarSign,
-      description: "This month",
+      description: "Bu oy",
       color: "text-emerald-600",
       bgColor: "bg-emerald-50",
     },
@@ -102,19 +100,19 @@ export default function Dashboard() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+            <h1 className="text-3xl font-bold text-foreground">Boshqaruv paneli</h1>
             <p className="text-muted-foreground">
-              Welcome back! Here's what's happening with your dairy business.
+              Xush kelibsiz! Sut mahsulotlari biznesingizdagi so'nggi yangiliklar.
             </p>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" className="gap-2">
               <Calendar className="h-4 w-4" />
-              This Month
+              Bu oy
             </Button>
             <Button className="gap-2">
               <TrendingUp className="h-4 w-4" />
-              View Reports
+              Hisobotlarni ko'rish
             </Button>
           </div>
         </div>
@@ -156,14 +154,14 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-lg">
-                    Recent Milk Purchases
+                    So'nggi sut xaridlari
                   </CardTitle>
                   <CardDescription>
                     Latest milk procurement activities
                   </CardDescription>
                 </div>
                 <Button variant="ghost" size="sm" asChild>
-                  <Link to="/milk-purchases">View All</Link>
+                  <Link to="/milk-purchases">Barchasini ko'rish</Link>
                 </Button>
               </div>
             </CardHeader>
@@ -191,7 +189,7 @@ export default function Dashboard() {
                     </div>
                     <div className="text-right">
                       <p className="font-semibold text-sm">
-                        ${purchase.total.toFixed(2)}
+                        {purchase.total.toFixed(2)} so'm
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {purchase.quantityLiters}L
@@ -200,7 +198,7 @@ export default function Dashboard() {
                   </div>
                 )) || (
                   <p className="text-center text-muted-foreground py-8">
-                    No recent milk purchases
+                    So'nggi sut xaridlari mavjud emas
                   </p>
                 )}
             </CardContent>
@@ -215,7 +213,7 @@ export default function Dashboard() {
                   <CardDescription>Latest sales transactions</CardDescription>
                 </div>
                 <Button variant="ghost" size="sm" asChild>
-                  <Link to="/sales">View All</Link>
+                  <Link to="/sales">Barchasini ko'rish</Link>
                 </Button>
               </div>
             </CardHeader>
@@ -240,7 +238,7 @@ export default function Dashboard() {
                   </div>
                   <div className="text-right">
                     <p className="font-semibold text-sm">
-                      ${sale.total.toFixed(2)}
+                      {sale.total.toFixed(2)} so'm
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {sale.quantity} {sale.product?.unit || "units"}
@@ -249,7 +247,7 @@ export default function Dashboard() {
                 </div>
               )) || (
                   <p className="text-center text-muted-foreground py-8">
-                    No recent sales
+                    So'nggi sotuvlar mavjud emas
                   </p>
                 )}
             </CardContent>
@@ -259,33 +257,33 @@ export default function Dashboard() {
         {/* Quick Actions */}
         <Card className="border-0 shadow-lg">
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Commonly used operations</CardDescription>
+            <CardTitle>Tezkor amallar</CardTitle>
+            <CardDescription>Ko'p ishlatiladigan operatsiyalar</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Button variant="outline" className="h-20 flex-col gap-2" asChild>
                 <Link to="/milk-purchases">
                   <Milk className="h-6 w-6" />
-                  <span className="text-sm">Record Purchase</span>
+                  <span className="text-sm">Xarid yozish</span>
                 </Link>
               </Button>
               <Button variant="outline" className="h-20 flex-col gap-2" asChild>
                 <Link to="/sales">
                   <ShoppingCart className="h-6 w-6" />
-                  <span className="text-sm">New Sale</span>
+                  <span className="text-sm">Yangi sotuv</span>
                 </Link>
               </Button>
               <Button variant="outline" className="h-20 flex-col gap-2" asChild>
                 <Link to="/suppliers">
                   <Truck className="h-6 w-6" />
-                  <span className="text-sm">Add Supplier</span>
+                  <span className="text-sm">Yetkazib beruvchi qo'shish</span>
                 </Link>
               </Button>
               <Button variant="outline" className="h-20 flex-col gap-2" asChild>
                 <Link to="/customers">
                   <Users className="h-6 w-6" />
-                  <span className="text-sm">Add Customer</span>
+                  <span className="text-sm">Mijoz qo'shish</span>
                 </Link>
               </Button>
             </div>

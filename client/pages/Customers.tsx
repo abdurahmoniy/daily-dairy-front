@@ -19,7 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useUser } from "@/hooks/useUser";
 import { apiClient } from "@/lib/api";
 import { Customer } from "@shared/api";
-import { Edit, Plus, Search, Trash2 } from "lucide-react";
+import { Edit, Loader2, Plus, Search, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -65,10 +65,9 @@ export default function Customers() {
 
   const filteredCustomers = customers.filter(
     (customer) =>
-      customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (customer.name && customer.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (customer.phone && customer.phone.includes(searchTerm))
   );
-
   const canEdit = currentUser && ["ADMIN", "MANAGER"].includes(currentUser.role);
 
   const handleNewCustomer = () => {
@@ -104,7 +103,7 @@ export default function Customers() {
       if (editingCustomer) {
         const updated = await apiClient.updateCustomer(editingCustomer.id, data);
         setCustomers(
-          customers.map((c) => (c.id === editingCustomer.id ? updated : c))
+          customers.map((c) => (c.id === editingCustomer.id ? updated.customer : c))
         );
       } else {
         const created = await apiClient.createCustomer(data);
@@ -126,9 +125,9 @@ export default function Customers() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Customers</h1>
+            <h1 className="text-3xl font-bold text-foreground">Mijozlar</h1>
             <p className="text-muted-foreground">
-              Manage your customers and their purchase history.
+              Mijozlaringiz va ularning xarid tarixini boshqaring.
             </p>
           </div>
           {canEdit && (
@@ -136,18 +135,18 @@ export default function Customers() {
               <DialogTrigger asChild>
                 <Button onClick={handleNewCustomer} className="gap-2">
                   <Plus className="h-4 w-4" />
-                  Add Customer
+                  Mijoz qo'shish
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
+              <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
-                    {editingCustomer ? "Edit Customer" : "Add New Customer"}
+                    {editingCustomer ? "Mijozni tahrirlash" : "Yangi mijoz qo'shish"}
                   </DialogTitle>
                   <DialogDescription>
                     {editingCustomer
-                      ? "Update the customer information below."
-                      : "Enter the details for the new customer."}
+                      ? "Quyidagi mijoz ma'lumotlarini yangilang."
+                      : "Yangi mijoz uchun ma'lumotlarni kiriting."}
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -157,43 +156,43 @@ export default function Customers() {
                     </Alert>
                   )}
                   <div className="space-y-2">
-                    <Label htmlFor="name">Customer Name</Label>
+                    <Label htmlFor="name">Mijoz ismi</Label>
                     <Input
                       id="name"
-                      placeholder="Enter customer name"
-                      {...register("name", { required: "Customer name is required" })}
+                      placeholder="Mijoz ismini kiriting"
+                      {...register("name", { required: "Mijoz ismi majburiy" })}
                     />
                     {errors.name && (
                       <p className="text-sm text-destructive">{errors.name.message}</p>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="type">Type</Label>
+                    <Label htmlFor="type">Turi</Label>
                     <Input
                       id="type"
-                      placeholder="Enter customer type (e.g. Retail, Wholesale)"
-                      {...register("type", { required: "Type is required" })}
+                      placeholder="Mijoz turi (masalan: Chakana, Ulgurji)"
+                      {...register("type", { required: "Turi majburiy" })}
                     />
                     {errors.type && (
                       <p className="text-sm text-destructive">{errors.type.message}</p>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
+                    <Label htmlFor="phone">Telefon raqami</Label>
                     <Input
                       id="phone"
-                      placeholder="Enter phone number"
-                      {...register("phone", { required: "Phone number is required" })}
+                      placeholder="Telefon raqamini kiriting"
+                      {...register("phone", { required: "Telefon raqami majburiy" })}
                     />
                     {errors.phone && (
                       <p className="text-sm text-destructive">{errors.phone.message}</p>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="notes">Notes (Optional)</Label>
+                    <Label htmlFor="notes">Izoh (ixtiyoriy)</Label>
                     <Textarea
                       id="notes"
-                      placeholder="Additional notes about the customer"
+                      placeholder="Mijoz haqida qo'shimcha izoh"
                       rows={3}
                       {...register("notes")}
                     />
@@ -204,17 +203,17 @@ export default function Customers() {
                       variant="outline"
                       onClick={() => setIsDialogOpen(false)}
                     >
-                      Cancel
+                      Bekor qilish
                     </Button>
                     <Button type="submit" disabled={isSubmitting}>
                       {isSubmitting ? (
                         <>
-                          {editingCustomer ? "Updating..." : "Creating..."}
+                          {editingCustomer ? "Yangilanmoqda..." : "Yaratilmoqda..."}
                         </>
                       ) : editingCustomer ? (
-                        "Update Customer"
+                        "Mijozni yangilash"
                       ) : (
-                        "Create Customer"
+                        "Mijozni yaratish"
                       )}
                     </Button>
                   </div>
@@ -227,7 +226,7 @@ export default function Customers() {
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
-            placeholder="Search customers..."
+            placeholder="Mijozlarni qidiring..."
             className="pl-10"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -235,7 +234,9 @@ export default function Customers() {
         </div>
         {/* Customers List */}
         {isLoading ? (
-          <div className="py-16 text-center">Loading...</div>
+          <div className="py-16 text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          </div>
         ) : error ? (
           <div className="py-16 text-center text-destructive">{error}</div>
         ) : filteredCustomers.length === 0 ? (
@@ -243,8 +244,8 @@ export default function Customers() {
             <CardContent className="py-16 text-center">
               <p className="text-muted-foreground">
                 {searchTerm
-                  ? "No customers found matching your search."
-                  : "No customers added yet."}
+                  ? "Qidiruv bo'yicha mijoz topilmadi."
+                  : "Hali mijozlar qo'shilmagan."}
               </p>
             </CardContent>
           </Card>
@@ -255,10 +256,10 @@ export default function Customers() {
                 <CardContent className="pt-4 pb-4 flex flex-col gap-2">
                   <div className="font-semibold text-lg">{customer.name}</div>
                   <div className="text-sm text-muted-foreground">
-                    {customer.phone || "N/A"}
+                    {customer.phone || "Noma'lum"}
                   </div>
                   <div className="text-xs text-muted-foreground">
-                    Type: {customer.type}
+                    Turi: {customer.type}
                   </div>
                   {customer.notes && (
                     <div className="text-xs text-muted-foreground line-clamp-2">
@@ -268,10 +269,10 @@ export default function Customers() {
                   {canEdit && (
                     <div className="flex gap-2 pt-2">
                       <Button size="sm" variant="outline" onClick={() => handleEdit(customer)}>
-                        <Edit className="h-4 w-4 mr-1" /> Edit
+                        <Edit className="h-4 w-4 mr-1" /> Tahrirlash
                       </Button>
                       <Button size="sm" variant="destructive" onClick={() => handleDelete(customer.id)}>
-                        <Trash2 className="h-4 w-4 mr-1" /> Delete
+                        <Trash2 className="h-4 w-4 mr-1" /> O'chirish
                       </Button>
                     </div>
                   )}

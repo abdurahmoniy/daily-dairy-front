@@ -143,15 +143,18 @@ export default function Suppliers() {
       supplier.phone.includes(searchTerm),
   );
 
-  if (isLoading) {
-    return (
-      <DashboardLayout>
-        <div className="p-6 flex items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
-      </DashboardLayout>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <DashboardLayout>
+  //       <div className="p-6 flex items-center justify-center">
+  //         <div className="text-center">
+  //           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+  //           <p className="text-muted-foreground">Loading suppliers...</p>
+  //         </div>
+  //       </div>
+  //     </DashboardLayout>
+  //   );
+  // }
 
   return (
     <DashboardLayout>
@@ -159,9 +162,9 @@ export default function Suppliers() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Suppliers</h1>
+            <h1 className="text-3xl font-bold text-foreground">Yetkazib beruvchilar</h1>
             <p className="text-muted-foreground">
-              Manage your milk suppliers and their information.
+              Sut yetkazib beruvchilar va ularning ma'lumotlarini boshqaring.
             </p>
           </div>
           {canEdit && (
@@ -169,18 +172,18 @@ export default function Suppliers() {
               <DialogTrigger asChild>
                 <Button onClick={handleNewSupplier} className="gap-2">
                   <Plus className="h-4 w-4" />
-                  Add Supplier
+                  Yetkazib beruvchi qo'shish
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
+              <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
-                    {editingSupplier ? "Edit Supplier" : "Add New Supplier"}
+                    {editingSupplier ? "Yetkazib beruvchini tahrirlash" : "Yangi yetkazib beruvchi qo'shish"}
                   </DialogTitle>
                   <DialogDescription>
                     {editingSupplier
-                      ? "Update the supplier information below."
-                      : "Enter the details for the new supplier."}
+                      ? "Quyidagi yetkazib beruvchi ma'lumotlarini yangilang."
+                      : "Yangi yetkazib beruvchi uchun ma'lumotlarni kiriting."}
                   </DialogDescription>
                 </DialogHeader>
 
@@ -192,12 +195,12 @@ export default function Suppliers() {
                   )}
 
                   <div className="space-y-2">
-                    <Label htmlFor="name">Supplier Name</Label>
+                    <Label htmlFor="name">Yetkazib beruvchi ismi</Label>
                     <Input
                       id="name"
-                      placeholder="Enter supplier name"
+                      placeholder="Yetkazib beruvchi ismini kiriting"
                       {...register("name", {
-                        required: "Supplier name is required",
+                        required: "Yetkazib beruvchi ismi majburiy",
                       })}
                     />
                     {errors.name && (
@@ -207,12 +210,12 @@ export default function Suppliers() {
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
+                    <Label htmlFor="phone">Telefon raqami</Label>
                     <Input
                       id="phone"
-                      placeholder="Enter phone number"
+                      placeholder="Telefon raqamini kiriting"
                       {...register("phone", {
-                        required: "Phone number is required",
+                        required: "Telefon raqami majburiy",
                       })}
                     />
                     {errors.phone && (
@@ -222,10 +225,10 @@ export default function Suppliers() {
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="notes">Notes (Optional)</Label>
+                    <Label htmlFor="notes">Izoh (ixtiyoriy)</Label>
                     <Textarea
                       id="notes"
-                      placeholder="Additional notes about the supplier"
+                      placeholder="Yetkazib beruvchi haqida qo'shimcha izoh"
                       rows={3}
                       {...register("notes")}
                     />
@@ -236,18 +239,18 @@ export default function Suppliers() {
                       variant="outline"
                       onClick={() => setIsDialogOpen(false)}
                     >
-                      Cancel
+                      Bekor qilish
                     </Button>
                     <Button type="submit" disabled={isSubmitting}>
                       {isSubmitting ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          {editingSupplier ? "Updating..." : "Creating..."}
+                          {editingSupplier ? "Yangilanmoqda..." : "Yaratilmoqda..."}
                         </>
                       ) : editingSupplier ? (
-                        "Update Supplier"
+                        "Yetkazib beruvchini yangilash"
                       ) : (
-                        "Create Supplier"
+                        "Yetkazib beruvchini yaratish"
                       )}
                     </Button>
                   </div>
@@ -261,7 +264,7 @@ export default function Suppliers() {
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
-            placeholder="Search suppliers..."
+            placeholder="Yetkazib beruvchilarni qidiring..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -269,13 +272,19 @@ export default function Suppliers() {
         </div>
 
         {/* Suppliers Grid */}
-        {filteredSuppliers.length === 0 ? (
+        {isLoading ? (
+          <div className="py-16 text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          </div>
+        ) : error ? (
+          <div className="py-16 text-center text-destructive">{error}</div>
+        ) : filteredSuppliers.length === 0 ? (
           <Card>
             <CardContent className="py-16 text-center">
               <p className="text-muted-foreground">
                 {searchTerm
-                  ? "No suppliers found matching your search."
-                  : "No suppliers added yet."}
+                  ? "Qidiruv bo'yicha yetkazib beruvchi topilmadi."
+                  : "Hali yetkazib beruvchilar qo'shilmagan."}
               </p>
               {!searchTerm && (
                 canEdit && (
@@ -285,7 +294,7 @@ export default function Suppliers() {
                     className="mt-4 gap-2"
                   >
                     <Plus className="h-4 w-4" />
-                    Add Your First Supplier
+                    Birinchi yetkazib beruvchini qo'shish
                   </Button>
                 )
               )}
@@ -304,7 +313,7 @@ export default function Suppliers() {
                       <CardTitle className="text-lg">{supplier.name}</CardTitle>
                       <CardDescription className="flex items-center gap-1 mt-1">
                         <Phone className="h-3 w-3" />
-                        {supplier.phone || "N/A"}
+                        {supplier.phone || "Noma'lum"}
                       </CardDescription>
                     </div>
                     {canEdit && (
@@ -320,14 +329,14 @@ export default function Suppliers() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => { handleEdit(supplier); setOpenSupplierMenu(null); }}>
                             <Edit className="mr-2 h-4 w-4" />
-                            Edit
+                            Tahrirlash
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => { handleDelete(supplier.id); setOpenSupplierMenu(null); }}
                             className="text-destructive"
                           >
                             <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
+                            O'chirish
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -343,10 +352,9 @@ export default function Suppliers() {
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      Added{" "}
-                      {supplier.createdAt
-                        ? format(new Date(supplier.createdAt), "MMM dd, yyyy")
-                        : "N/A"}
+                      Qo'shildi {supplier.createdAt
+                        ? format(new Date(supplier.createdAt), "yyyy-MM-dd")
+                        : "Noma'lum"}
                     </span>
                     <Badge>
                       ID: {supplier.id}
