@@ -12,12 +12,25 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useUser } from "@/hooks/useUser";
 import { apiClient } from "@/lib/api";
 import { CreateProductRequest, Product } from "@shared/api";
 import { Edit, Loader2, Plus, Search, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+
+// Predefined units for dairy products
+const PRODUCT_UNITS = [
+  { value: "Litr", label: "Litr" },
+  { value: "Kg", label: "Kilogramm" },
+  { value: "Dona", label: "Dona" },
+  { value: "Paket", label: "Paket" },
+  { value: "Shisha", label: "Shisha" },
+  { value: "Karton", label: "Karton" },
+  { value: "Gramm", label: "Gramm" },
+  { value: "Tonna", label: "Tonna" },
+];
 
 export default function Products() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -37,6 +50,7 @@ export default function Products() {
     formState: { errors },
     reset,
     setValue,
+    watch,
   } = useForm<CreateProductRequest>({
     defaultValues: {
       name: "",
@@ -44,6 +58,8 @@ export default function Products() {
       pricePerUnit: 0,
     },
   });
+
+  const selectedUnit = watch("unit");
 
   useEffect(() => {
     fetchProducts();
@@ -170,11 +186,18 @@ export default function Products() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="unit">O'lchov birligi</Label>
-                    <Input
-                      id="unit"
-                      placeholder="O'lchov birligini kiriting (masalan, Litr, Kg, Dona)"
-                      {...register("unit", { required: "O'lchov birligi majburiy" })}
-                    />
+                    <Select value={selectedUnit} onValueChange={(value) => setValue("unit", value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="O'lchov birligini tanlang" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {PRODUCT_UNITS.map((unit) => (
+                          <SelectItem key={unit.value} value={unit.value}>
+                            {unit.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     {errors.unit && (
                       <p className="text-sm text-destructive">{errors.unit.message}</p>
                     )}

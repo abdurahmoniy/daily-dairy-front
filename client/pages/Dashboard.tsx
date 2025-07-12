@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { apiClient } from '@/lib/api';
+import { AllTimeData, DashboardData } from '@shared/api';
 import { endOfDay, endOfMonth, format, startOfDay, startOfMonth, subDays, subMonths } from 'date-fns';
 import { uz } from 'date-fns/locale';
 import { Activity, Calendar, DollarSign, Package, TrendingUp, Users } from 'lucide-react';
@@ -20,88 +21,6 @@ import 'react-date-range/dist/styles.css'; // main css file
 import 'react-date-range/dist/theme/default.css'; // theme css file
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { DashboardLayout } from '../components/layout/dashboard-layout';
-
-interface DashboardData {
-  dateRange: {
-    from: string;
-    to: string;
-  };
-  summary: {
-    totalMilkPurchased: number;
-    totalMilkSold: number;
-    totalPurchaseCost: number;
-    totalSalesRevenue: number;
-    grossProfit: number;
-  };
-  purchasesOverTime: Array<{
-    date: string;
-    totalLiters: number;
-  }>;
-  salesOverTime: Array<{
-    date: string;
-    totalLiters: number;
-  }>;
-  supplierBreakdown: Array<{
-    supplierId: number;
-    supplierName: string;
-    totalLitersSupplied: number;
-    totalCost: number;
-  }>;
-  customerBreakdown: Array<{
-    customerId: number;
-    customerName: string;
-    totalLitersBought: number;
-    totalRevenue: number;
-  }>;
-  productBreakdown: Array<{
-    productId: number;
-    productName: string;
-    unitsSold: number;
-    totalRevenue: number;
-  }>;
-}
-
-interface AllTimeData {
-  summary: {
-    totalMilkPurchased: number;
-    totalMilkSold: number;
-    totalPurchaseCost: number;
-    totalSalesRevenue: number;
-    grossProfit: number;
-  };
-  supplierBreakdown: Array<{
-    supplierId: number;
-    supplierName: string;
-    totalLitersSupplied: number;
-    totalCost: number;
-    totalTransactions: number;
-    averagePricePerLiter: number;
-  }>;
-  customerBreakdown: Array<{
-    customerId: number;
-    customerName: string;
-    totalLitersBought: number;
-    totalRevenue: number;
-    totalTransactions: number;
-    averagePricePerLiter: number;
-  }>;
-  productBreakdown: Array<{
-    productId: number;
-    productName: string;
-    unitsSold: number;
-    totalRevenue: number;
-    totalTransactions: number;
-    averagePricePerUnit: number;
-  }>;
-  monthlyTrends: Array<{
-    month: string;
-    purchases: number;
-    sales: number;
-    purchaseCost: number;
-    salesRevenue: number;
-    profit: number;
-  }>;
-}
 
 const Dashboard: React.FC = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
@@ -159,7 +78,20 @@ const Dashboard: React.FC = () => {
       const to = format(dateRange.to, 'yyyy-MM-dd');
 
       const data = await apiClient.getDashboardData(from, to);
-      setDashboardData(data);
+      // Ensure salesOverTime has all required properties, filling missing ones with 0
+      const fixedData = {
+        ...data,
+        salesOverTime: Array.isArray(data.salesOverTime)
+          ? data.salesOverTime.map((item: any) => ({
+            date: item.date,
+            totalLiters: item.totalLiters ?? 0,
+            totalKg: item.totalKg ?? 0,
+            totalUnits: item.totalUnits ?? 0,
+            totalQuantity: item.totalQuantity ?? 0,
+          }))
+          : [],
+      };
+      setDashboardData(fixedData);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -184,7 +116,28 @@ const Dashboard: React.FC = () => {
   };
 
   const formatVolume = (liters: number) => {
-    return `${liters.toFixed(1)} L`;
+    return `${liters.toFixed(1)} litr`;
+  };
+
+  const formatQuantityWithUnit = (quantity: number, unit: string) => {
+    return `${quantity.toFixed(1)} ${unit}`;
+  };
+
+  const formatSalesQuantity = (salesData: any) => {
+    const { totalLiters, totalKg, totalUnits } = salesData;
+    const parts = [];
+
+    if (totalLiters > 0) {
+      parts.push(`${totalLiters.toFixed(1)} litr`);
+    }
+    if (totalKg > 0) {
+      parts.push(`${totalKg.toFixed(1)} kg`);
+    }
+    if (totalUnits > 0) {
+      parts.push(`${totalUnits.toFixed(1)} dona`);
+    }
+
+    return parts.length > 0 ? parts.join(', ') : '0';
   };
 
   const formatDateUzbek = (date: Date, formatStr: string) => {
@@ -250,7 +203,20 @@ const Dashboard: React.FC = () => {
       const from = format(fromDate, 'yyyy-MM-dd');
       const to = format(toDate, 'yyyy-MM-dd');
       const data = await apiClient.getDashboardData(from, to);
-      setQuickActionData(data);
+
+      // Patch salesOverTime to ensure all required fields exist
+      const patchedData = {
+        ...data,
+        salesOverTime: data.salesOverTime.map(item => ({
+          date: item.date,
+          totalLiters: item.totalLiters,
+          totalKg: (item as any).totalKg ?? 0,
+          totalUnits: (item as any).totalUnits ?? 0,
+          totalQuantity: (item as any).totalQuantity ?? 0,
+        })),
+      };
+
+      setQuickActionData(patchedData);
     } catch (error) {
       console.error('Error fetching quick action data:', error);
     } finally {
@@ -259,17 +225,38 @@ const Dashboard: React.FC = () => {
   };
 
   const LoadingSkeleton = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => (
-          <Skeleton key={i} className="h-32" />
-        ))}
+    <DashboardLayout>
+      <div className="space-y-4 p-4 sm:p-6">
+        {/* Header Skeleton */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-4 w-80" />
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <div className="flex gap-2">
+              {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="h-8 w-16" />
+              ))}
+            </div>
+            <Skeleton className="h-8 w-48" />
+          </div>
+        </div>
+
+        {/* Content Skeleton */}
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton key={i} className="h-32" />
+            ))}
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Skeleton className="h-80" />
+            <Skeleton className="h-80" />
+          </div>
+        </div>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Skeleton className="h-80" />
-        <Skeleton className="h-80" />
-      </div>
-    </div>
+    </DashboardLayout>
   );
 
   if (loading) {
@@ -280,7 +267,7 @@ const Dashboard: React.FC = () => {
     <DashboardLayout>
       <div className="space-y-4 p-4 sm:p-6">
         {/* Header */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Boshqaruv paneli</h1>
             <p className="text-sm sm:text-base text-muted-foreground mt-1">
@@ -288,70 +275,73 @@ const Dashboard: React.FC = () => {
             </p>
           </div>
 
-          {/* Quick Action Buttons */}
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleQuickAction('today')}
-              className="text-xs flex-1 sm:flex-none"
-            >
-              Bugun
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleQuickAction('yesterday')}
-              className="text-xs flex-1 sm:flex-none"
-            >
-              Kecha
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleQuickAction('thisMonth')}
-              className="text-xs flex-1 sm:flex-none"
-            >
-              Bu oy
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleQuickAction('lastMonth')}
-              className="text-xs flex-1 sm:flex-none"
-            >
-              Oldingi oy
-            </Button>
-          </div>
+          {/* Quick Action Buttons and Date Picker */}
+          <div className="flex flex-col sm:flex-row gap-2">
+            {/* Quick Action Buttons */}
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleQuickAction('today')}
+                className="text-xs flex-1 sm:flex-none"
+              >
+                Bugun
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleQuickAction('yesterday')}
+                className="text-xs flex-1 sm:flex-none"
+              >
+                Kecha
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleQuickAction('thisMonth')}
+                className="text-xs flex-1 sm:flex-none"
+              >
+                Bu oy
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleQuickAction('lastMonth')}
+                className="text-xs flex-1 sm:flex-none"
+              >
+                Oldingi oy
+              </Button>
+            </div>
 
-          {/* Date Picker */}
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <button
-              onClick={handleOpenDatePicker}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium text-left"
-            >
-              {formatDateUzbek(dateRange.from, 'dd MMM')} - {formatDateUzbek(dateRange.to, 'dd MMM yyyy')}
-            </button>
-            {isDatePickerOpen && (
-              <div className="absolute top-16 left-4 right-4 z-50 bg-white border border-gray-300 rounded-md shadow-lg" ref={datePickerRef}>
-                <DateRange
-                  locale={uz}
-                  months={1}
-                  showSelectionPreview={true}
-                  ranges={[{
-                    startDate: tempDateRange.from,
-                    endDate: tempDateRange.to,
-                    key: 'selection'
-                  }]}
-                  onChange={handleDateRangeChange}
-                  rangeColors={['#0088FE']}
-                  showDateDisplay={true}
-                  showMonthAndYearPickers={true}
-                  direction="horizontal"
-                />
-              </div>
-            )}
+            {/* Date Picker */}
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <button
+                onClick={handleOpenDatePicker}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm font-medium text-left"
+              >
+                {formatDateUzbek(dateRange.from, 'dd MMM')} - {formatDateUzbek(dateRange.to, 'dd MMM yyyy')}
+              </button>
+              {isDatePickerOpen && (
+                <div className="absolute top-16 left-4 right-4 z-50 bg-white border border-gray-300 rounded-md shadow-lg" ref={datePickerRef}>
+                  <DateRange
+                    locale={uz}
+                    months={1}
+                    showSelectionPreview={true}
+                    ranges={[{
+                      startDate: tempDateRange.from,
+                      endDate: tempDateRange.to,
+                      key: 'selection'
+                    }]}
+                    onChange={handleDateRangeChange}
+                    rangeColors={['#0088FE']}
+                    showDateDisplay={true}
+                    showMonthAndYearPickers={true}
+                    direction="horizontal"
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -471,11 +461,17 @@ const Dashboard: React.FC = () => {
                           <YAxis fontSize={12} />
                           <Tooltip
                             labelFormatter={(value) => formatDateUzbek(new Date(value), 'MMM dd, yyyy')}
-                            formatter={(value: number) => [formatVolume(value), 'Litr']}
+                            formatter={(value: any, name: string) => {
+                              if (name === 'totalQuantity') {
+                                const salesData = dashboardData.salesOverTime.find(item => item.date === value);
+                                return [formatSalesQuantity(salesData), 'Hajm'];
+                              }
+                              return [value, name];
+                            }}
                           />
                           <Line
                             type="monotone"
-                            dataKey="totalLiters"
+                            dataKey="totalQuantity"
                             stroke="#00C49F"
                             strokeWidth={2}
                             name="Sotish"
@@ -557,7 +553,12 @@ const Dashboard: React.FC = () => {
                               <span className="text-xs sm:text-sm font-medium truncate">{product.productName}</span>
                             </div>
                             <div className="text-right">
-                              <div className="text-xs sm:text-sm font-medium">{formatVolume(product.unitsSold)}</div>
+                              <div className="text-xs sm:text-sm font-medium">
+                                {product.productUnit
+                                  ? formatQuantityWithUnit(product.unitsSold, product.productUnit)
+                                  : formatVolume(product.unitsSold)
+                                }
+                              </div>
                               <div className="text-xs text-muted-foreground">{formatCurrency(product.totalRevenue)}</div>
                             </div>
                           </div>
@@ -762,7 +763,12 @@ const Dashboard: React.FC = () => {
                             <div className="grid grid-cols-2 gap-2 text-xs">
                               <div>
                                 <span className="text-muted-foreground">Birliklar:</span>
-                                <div className="font-medium">{formatVolume(product.unitsSold)}</div>
+                                <div className="font-medium">
+                                  {product.productUnit
+                                    ? formatQuantityWithUnit(product.unitsSold, product.productUnit)
+                                    : formatVolume(product.unitsSold)
+                                  }
+                                </div>
                               </div>
                               <div>
                                 <span className="text-muted-foreground">Daromad:</span>
@@ -787,7 +793,7 @@ const Dashboard: React.FC = () => {
 
       {/* Quick Action Modal */}
       <Dialog open={isQuickActionModalOpen} onOpenChange={setIsQuickActionModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{quickActionTitle} statistikasi</DialogTitle>
             <DialogDescription>
@@ -914,11 +920,17 @@ const Dashboard: React.FC = () => {
                         <YAxis />
                         <Tooltip
                           labelFormatter={(value) => formatDateUzbek(new Date(value), 'MMM dd, yyyy')}
-                          formatter={(value: number) => [formatVolume(value), 'Litr']}
+                          formatter={(value: any, name: string) => {
+                            if (name === 'totalQuantity') {
+                              const salesData = quickActionData.salesOverTime.find(item => item.date === value);
+                              return [formatSalesQuantity(salesData), 'Hajm'];
+                            }
+                            return [value, name];
+                          }}
                         />
                         <Line
                           type="monotone"
-                          dataKey="totalLiters"
+                          dataKey="totalQuantity"
                           stroke="#00C49F"
                           strokeWidth={2}
                           name="Sotish"
@@ -1000,7 +1012,12 @@ const Dashboard: React.FC = () => {
                             <span className="text-sm font-medium">{product.productName}</span>
                           </div>
                           <div className="text-right">
-                            <div className="text-sm font-medium">{formatVolume(product.unitsSold)}</div>
+                            <div className="text-sm font-medium">
+                              {product.productUnit
+                                ? formatQuantityWithUnit(product.unitsSold, product.productUnit)
+                                : formatVolume(product.unitsSold)
+                              }
+                            </div>
                             <div className="text-xs text-muted-foreground">{formatCurrency(product.totalRevenue)}</div>
                           </div>
                         </div>

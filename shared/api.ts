@@ -167,6 +167,93 @@ export interface DashboardSummary {
   recentSales: Sale[];
 }
 
+export interface DashboardData {
+  dateRange: {
+    from: string;
+    to: string;
+  };
+  summary: {
+    totalMilkPurchased: number;
+    totalMilkSold: number;
+    totalPurchaseCost: number;
+    totalSalesRevenue: number;
+    grossProfit: number;
+  };
+  purchasesOverTime: Array<{
+    date: string;
+    totalLiters: number;
+  }>;
+  salesOverTime: Array<{
+    date: string;
+    totalLiters: number;
+    totalKg: number;
+    totalUnits: number;
+    totalQuantity: number;
+  }>;
+  supplierBreakdown: Array<{
+    supplierId: number;
+    supplierName: string;
+    totalLitersSupplied: number;
+    totalCost: number;
+  }>;
+  customerBreakdown: Array<{
+    customerId: number;
+    customerName: string;
+    totalLitersBought: number;
+    totalRevenue: number;
+  }>;
+  productBreakdown: Array<{
+    productId: number;
+    productName: string;
+    productUnit?: string;
+    unitsSold: number;
+    totalRevenue: number;
+  }>;
+}
+
+export interface AllTimeData {
+  summary: {
+    totalMilkPurchased: number;
+    totalMilkSold: number;
+    totalPurchaseCost: number;
+    totalSalesRevenue: number;
+    grossProfit: number;
+  };
+  supplierBreakdown: Array<{
+    supplierId: number;
+    supplierName: string;
+    totalLitersSupplied: number;
+    totalCost: number;
+    totalTransactions: number;
+    averagePricePerLiter: number;
+  }>;
+  customerBreakdown: Array<{
+    customerId: number;
+    customerName: string;
+    totalLitersBought: number;
+    totalRevenue: number;
+    totalTransactions: number;
+    averagePricePerLiter: number;
+  }>;
+  productBreakdown: Array<{
+    productId: number;
+    productName: string;
+    productUnit?: string;
+    unitsSold: number;
+    totalRevenue: number;
+    totalTransactions: number;
+    averagePricePerUnit: number;
+  }>;
+  monthlyTrends: Array<{
+    month: string;
+    purchases: number;
+    sales: number;
+    purchaseCost: number;
+    salesRevenue: number;
+    profit: number;
+  }>;
+}
+
 // API Error types
 export interface ApiError {
   message: string;

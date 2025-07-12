@@ -5,16 +5,10 @@ import {
   Card,
   CardContent
 } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useUser } from "@/hooks/useUser";
 import { apiClient } from "@/lib/api";
@@ -23,15 +17,22 @@ import { Edit, Loader2, Plus, Search, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
+// Predefined customer types
+const CUSTOMER_TYPES = [
+  { value: "Chakana", label: "Chakana" },
+  { value: "Ulgurji", label: "Ulgurji" },
+];
+
 export default function Customers() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { user: currentUser, isLoading: isUserLoading } = useUser();
+  const [error, setError] = useState("");
+  const { user: currentUser } = useUser();
+  const canEdit = currentUser && ["ADMIN", "MANAGER"].includes(currentUser.role);
 
   const {
     register,
@@ -39,6 +40,7 @@ export default function Customers() {
     formState: { errors },
     reset,
     setValue,
+    watch,
   } = useForm({
     defaultValues: {
       name: "",
@@ -48,16 +50,19 @@ export default function Customers() {
     },
   });
 
+  const selectedType = watch("type");
+
   useEffect(() => {
     fetchCustomers();
   }, []);
 
   const fetchCustomers = async () => {
+    setIsLoading(true);
     try {
       const data = await apiClient.getCustomers();
       setCustomers(data);
     } catch (err) {
-      setError("Failed to fetch customers");
+      setCustomers([]);
     } finally {
       setIsLoading(false);
     }
@@ -65,10 +70,10 @@ export default function Customers() {
 
   const filteredCustomers = customers.filter(
     (customer) =>
-      (customer.name && customer.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      customer.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (customer.phone && customer.phone.includes(searchTerm))
   );
-  const canEdit = currentUser && ["ADMIN", "MANAGER"].includes(currentUser.role);
 
   const handleNewCustomer = () => {
     setEditingCustomer(null);
@@ -80,19 +85,19 @@ export default function Customers() {
     setEditingCustomer(customer);
     setValue("name", customer.name);
     setValue("type", customer.type);
-    setValue("phone", customer.phone);
+    setValue("phone", customer.phone || "");
     setValue("notes", customer.notes || "");
     setIsDialogOpen(true);
   };
 
   const handleDelete = async (id: number) => {
     if (!canEdit) return;
-    if (!confirm("Are you sure you want to delete this customer?")) return;
+    if (!confirm("Mijozni o'chirmoqchimisiz?")) return;
     try {
       await apiClient.deleteCustomer(id);
       setCustomers(customers.filter((c) => c.id !== id));
     } catch (err) {
-      setError("Failed to delete customer");
+      setError("Mijozni o'chirishda xatolik yuz berdi.");
     }
   };
 
@@ -102,18 +107,20 @@ export default function Customers() {
     try {
       if (editingCustomer) {
         const updated = await apiClient.updateCustomer(editingCustomer.id, data);
-        setCustomers(
-          customers.map((c) => (c.id === editingCustomer.id ? updated.customer : c))
-        );
+        // Handle both direct Customer object and wrapped response
+        const updatedCustomer = (updated as any).customer || updated;
+        setCustomers(customers.map((c) => (c.id === editingCustomer.id ? updatedCustomer : c)));
       } else {
         const created = await apiClient.createCustomer(data);
-        setCustomers([...customers, created]);
+        // Handle both direct Customer object and wrapped response
+        const createdCustomer = (created as any).customer || created;
+        setCustomers([...customers, createdCustomer]);
       }
       setIsDialogOpen(false);
       reset();
       setEditingCustomer(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      setError(err instanceof Error ? err.message : "Xatolik yuz berdi.");
     } finally {
       setIsSubmitting(false);
     }
@@ -127,7 +134,7 @@ export default function Customers() {
           <div>
             <h1 className="text-3xl font-bold text-foreground">Mijozlar</h1>
             <p className="text-muted-foreground">
-              Mijozlaringiz va ularning xarid tarixini boshqaring.
+              Mijozlar ro'yxatini boshqaring.
             </p>
           </div>
           {canEdit && (
@@ -168,11 +175,18 @@ export default function Customers() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="type">Turi</Label>
-                    <Input
-                      id="type"
-                      placeholder="Mijoz turi (masalan: Chakana, Ulgurji)"
-                      {...register("type", { required: "Turi majburiy" })}
-                    />
+                    <Select value={selectedType} onValueChange={(value) => setValue("type", value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Mijoz turini tanlang" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CUSTOMER_TYPES.map((type) => (
+                          <SelectItem key={type.value} value={type.value}>
+                            {type.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     {errors.type && (
                       <p className="text-sm text-destructive">{errors.type.message}</p>
                     )}
