@@ -36,6 +36,15 @@ const adminNavigation = [
   // { name: "Tizim sozlamalari", href: "/settings", icon: Settings },
 ];
 
+// Mobile bottom navigation items (limited to 5 most important)
+const mobileNavigation = [
+  { name: "Boshqaruv", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Yetkazuvchilar", href: "/suppliers", icon: Truck },
+  { name: "Mijozlar", href: "/customers", icon: Users },
+  { name: "Sut xaridlari", href: "/milk-purchases", icon: Milk },
+  { name: "Sotuvlar", href: "/sales", icon: ShoppingCart },
+];
+
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
@@ -189,7 +198,30 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
 
         {/* Page content */}
-        <main className="flex-1 overflow-auto">{children}</main>
+        <main className="flex-1 overflow-auto pb-20 lg:pb-0">{children}</main>
+
+        {/* Mobile Bottom Navigation */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border z-40">
+          <div className="flex items-center justify-around px-2 py-2">
+            {mobileNavigation.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={cn(
+                  "flex flex-col items-center justify-center px-3 py-2 rounded-lg transition-colors min-w-0 flex-1",
+                  isActiveRoute(item.href)
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                )}
+              >
+                <item.icon className="h-5 w-5" />
+                {isActiveRoute(item.href) && (
+                  <span className="text-xs font-medium truncate mt-1">{item.name}</span>
+                )}
+              </Link>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

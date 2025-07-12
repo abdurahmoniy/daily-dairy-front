@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .success {
+            color: #22c55e;
+            font-weight: bold;
+        }
+        .error {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        .info {
+            color: #3b82f6;
+            font-weight: bold;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Dashboard API Test</h1>
+        <p>This page tests the dashboard API endpoints to ensure they're working correctly.</p>
+        
+        <div class="test-section">
+            <h2>1. Authentication Test</h2>
+            <p>First, let's test if we can authenticate:</p>
+            <input type="text" id="username" placeholder="Username" value="admin">
+            <input type="password" id="password" placeholder="Password" value="admin123">
+            <button onclick="testAuth()">Test Authentication</button>
+            <div id="auth-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>2. Dashboard API Tests</h2>
+            <p>Test the dashboard endpoints:</p>
+            <input type="date" id="from-date" value="2024-01-01">
+            <input type="date" id="to-date" value="2024-12-31">
+            <button onclick="testDashboard()">Test Period Dashboard</button>
+            <button onclick="testAllTimeDashboard()">Test All-Time Dashboard</button>
+            <div id="dashboard-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>3. API Response Examples</h2>
+            <p>Expected response formats:</p>
+            <details>
+                <summary>Period Dashboard Response</summary>
+                <pre>
+{
+  "dateRange": {
+    "from": "2024-01-01",
+    "to": "2024-12-31"
+  },
+  "summary": {
+    "totalMilkPurchased": 1250.5,
+    "totalMilkSold": 1180.0,
+    "totalPurchaseCost": 3125.0,
+    "totalSalesRevenue": 4720.0,
+    "grossProfit": 1595.0
+  },
+  "purchasesOverTime": [...],
+  "salesOverTime": [...],
+  "supplierBreakdown": [...],
+  "customerBreakdown": [...],
+  "productBreakdown": [...]
+}
+                </pre>
+            </details>
+            <details>
+                <summary>All-Time Dashboard Response</summary>
+                <pre>
+{
+  "summary": {
+    "totalMilkPurchased": 12500.5,
+    "totalMilkSold": 11800.0,
+    "totalPurchaseCost": 31250.0,
+    "totalSalesRevenue": 47200.0,
+    "grossProfit": 15950.0
+  },
+  "supplierBreakdown": [...],
+  "customerBreakdown": [...],
+  "productBreakdown": [...],
+  "monthlyTrends": [...]
+}
+                </pre>
+            </details>
+        </div>
+    </div>
+
+    <script>
+        let authToken = null;
+
+        async function testAuth() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('auth-result');
+
+            try {
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    authToken = data.token;
+                    resultDiv.innerHTML = `<div class="success">✅ Authentication successful! Token received.</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ Authentication failed: ${data.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Connection error: ${error.message}</div>`;
+            }
+        }
+
+        async function testDashboard() {
+            if (!authToken) {
+                document.getElementById('dashboard-result').innerHTML = 
+                    `<div class="error">❌ Please authenticate first!</div>`;
+                return;
+            }
+
+            const fromDate = document.getElementById('from-date').value;
+            const toDate = document.getElementById('to-date').value;
+            const resultDiv = document.getElementById('dashboard-result');
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/dashboard?from=${fromDate}&to=${toDate}`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">✅ Period Dashboard API working!</div>
+                        <div class="info">📊 Summary: ${data.summary.totalMilkPurchased}L purchased, ${data.summary.totalMilkSold}L sold</div>
+                        <div class="info">💰 Profit: $${data.summary.grossProfit}</div>
+                        <details>
+                            <summary>Full Response</summary>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </details>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ Dashboard API error: ${data.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Connection error: ${error.message}</div>`;
+            }
+        }
+
+        async function testAllTimeDashboard() {
+            if (!authToken) {
+                document.getElementById('dashboard-result').innerHTML = 
+                    `<div class="error">❌ Please authenticate first!</div>`;
+                return;
+            }
+
+            const resultDiv = document.getElementById('dashboard-result');
+
+            try {
+                const response = await fetch('http://localhost:5000/api/dashboard/all-time', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">✅ All-Time Dashboard API working!</div>
+                        <div class="info">📊 Summary: ${data.summary.totalMilkPurchased}L purchased, ${data.summary.totalMilkSold}L sold</div>
+                        <div class="info">💰 Profit: $${data.summary.grossProfit}</div>
+                        <div class="info">📈 Monthly trends: ${data.monthlyTrends?.length || 0} months of data</div>
+                        <details>
+                            <summary>Full Response</summary>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </details>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ All-Time Dashboard API error: ${data.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Connection error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html> 

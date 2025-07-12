@@ -22,8 +22,91 @@ import {
   ApiError,
 } from "@shared/api";
 
-// const API_BASE_URL = "http://localhost:5000/api";
-const API_BASE_URL = "https://daily-dairy-backend-production.up.railway.app/api";
+const API_BASE_URL = "http://localhost:5000/api";
+// const API_BASE_URL = "https://daily-dairy-backend-production.up.railway.app/api";
+
+// Dashboard data interfaces
+interface DashboardData {
+  dateRange: {
+    from: string;
+    to: string;
+  };
+  summary: {
+    totalMilkPurchased: number;
+    totalMilkSold: number;
+    totalPurchaseCost: number;
+    totalSalesRevenue: number;
+    grossProfit: number;
+  };
+  purchasesOverTime: Array<{
+    date: string;
+    totalLiters: number;
+  }>;
+  salesOverTime: Array<{
+    date: string;
+    totalLiters: number;
+  }>;
+  supplierBreakdown: Array<{
+    supplierId: number;
+    supplierName: string;
+    totalLitersSupplied: number;
+    totalCost: number;
+  }>;
+  customerBreakdown: Array<{
+    customerId: number;
+    customerName: string;
+    totalLitersBought: number;
+    totalRevenue: number;
+  }>;
+  productBreakdown: Array<{
+    productId: number;
+    productName: string;
+    unitsSold: number;
+    totalRevenue: number;
+  }>;
+}
+
+interface AllTimeData {
+  summary: {
+    totalMilkPurchased: number;
+    totalMilkSold: number;
+    totalPurchaseCost: number;
+    totalSalesRevenue: number;
+    grossProfit: number;
+  };
+  supplierBreakdown: Array<{
+    supplierId: number;
+    supplierName: string;
+    totalLitersSupplied: number;
+    totalCost: number;
+    totalTransactions: number;
+    averagePricePerLiter: number;
+  }>;
+  customerBreakdown: Array<{
+    customerId: number;
+    customerName: string;
+    totalLitersBought: number;
+    totalRevenue: number;
+    totalTransactions: number;
+    averagePricePerLiter: number;
+  }>;
+  productBreakdown: Array<{
+    productId: number;
+    productName: string;
+    unitsSold: number;
+    totalRevenue: number;
+    totalTransactions: number;
+    averagePricePerUnit: number;
+  }>;
+  monthlyTrends: Array<{
+    month: string;
+    purchases: number;
+    sales: number;
+    purchaseCost: number;
+    salesRevenue: number;
+    profit: number;
+  }>;
+}
 
 class ApiClient {
   public getAuthHeaders(): HeadersInit {
@@ -48,7 +131,7 @@ class ApiClient {
     try {
       const response = await fetch(url, config);
 
-      if (response.status === 401) {
+      if (response.status === 401 || response.status === 403) {
         window.location.href = "/login";
         throw new Error("Unauthorized");
       }
@@ -311,6 +394,14 @@ class ApiClient {
   // Dashboard
   async getDashboardSummary(): Promise<DashboardSummary> {
     return this.request<DashboardSummary>("/dashboard/summary");
+  }
+
+  async getDashboardData(fromDate: string, toDate: string): Promise<DashboardData> {
+    return this.request<DashboardData>(`/dashboard?from=${fromDate}&to=${toDate}`);
+  }
+
+  async getAllTimeDashboardData(): Promise<AllTimeData> {
+    return this.request<AllTimeData>("/dashboard/all-time");
   }
 }
 
