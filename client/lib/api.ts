@@ -22,10 +22,15 @@ import {
   ApiError,
 } from "@shared/api";
 
-const configuredApiUrl = import.meta.env.VITE_API_URL || "http://localhost:5001";
-const API_BASE_URL = configuredApiUrl.endsWith("/api")
-  ? configuredApiUrl
-  : `${configuredApiUrl.replace(/\/$/, "")}/api`;
+const DEFAULT_API_URL = "https://daily-dairy-backend.netlify.app";
+
+export function resolveApiBaseUrl(configuredApiUrl = DEFAULT_API_URL) {
+  return configuredApiUrl.endsWith("/api")
+    ? configuredApiUrl
+    : `${configuredApiUrl.replace(/\/$/, "")}/api`;
+}
+
+const API_BASE_URL = resolveApiBaseUrl(import.meta.env.VITE_API_URL);
 
 // Dashboard data interfaces
 interface DashboardData {
