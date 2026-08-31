@@ -9,6 +9,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./components/auth-provider";
 import { ProtectedRoute } from "./components/protected-route";
 import AdminSessions from "./pages/AdminSessions";
+import AnalyticsDashboard from "./pages/AnalyticsDashboard";
 import Customers from "./pages/Customers";
 import Dashboard from "./pages/Dashboard";
 import Index from "./pages/Index";
@@ -46,6 +47,15 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/analytics-dashboard"
+              element={
+                <ProtectedRoute>
+                  <AnalyticsDashboard />
                 </ProtectedRoute>
               }
             />

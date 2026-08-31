@@ -1,0 +1,71 @@
+- generic [ref=f6e2]:
+  - region "Notifications (F8)":
+    - list
+  - generic [ref=f6e3]:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - heading "DailyDairy" [level=1]
+              - paragraph: Sut mahsulotlari boshqaruvi
+          - navigation:
+            - link "Boshqaruv paneli":
+              - /url: /dashboard
+            - link "Yetkazib beruvchilar":
+              - /url: /suppliers
+            - link "Mijozlar":
+              - /url: /customers
+            - link "Mahsulotlar":
+              - /url: /products
+            - link "Sut xaridlari":
+              - /url: /milk-purchases
+            - link "Sotuvlar":
+              - /url: /sales
+            - generic: Administratsiya
+            - link "Foydalanuvchilarni boshqarish":
+              - /url: /users
+            - link "Admin sessiyalari":
+              - /url: /admin-sessions
+          - generic:
+            - generic:
+              - generic:
+                - paragraph: preview
+                - paragraph: Admin
+              - button
+    - generic [ref=f6e4]:
+      - generic [ref=f6e5]:
+        - button [ref=f6e6] [cursor=pointer]
+        - generic [ref=f6e7]: DailyDairy
+      - main [ref=f6e12]:
+        - generic [ref=f6e13]:
+          - generic [ref=f6e15]:
+            - paragraph [ref=f6e16]: Kunlik hisob
+            - heading "Sotuvlar" [level=1] [ref=f6e17]
+            - paragraph [ref=f6e18]: Mahsulot chiqimini tez yozing va bugungi tushumni ko'ring.
+          - generic [ref=f6e19]:
+            - generic [ref=f6e21]:
+              - paragraph [ref=f6e22]: Bugungi sotuv
+              - paragraph [ref=f6e23]: "0"
+            - generic [ref=f6e25]:
+              - paragraph [ref=f6e26]: Bugungi tushum
+              - paragraph [ref=f6e27]: 0 so'm
+            - generic [ref=f6e29]:
+              - paragraph [ref=f6e30]: Yozuvlar
+              - paragraph [ref=f6e31]: "0"
+            - generic [ref=f6e33]:
+              - paragraph [ref=f6e34]: Mahsulotlar
+              - paragraph [ref=f6e35]: "0"
+          - textbox "Mijoz, mahsulot yoki sana bo'yicha qidirish" [ref=f6e40]
+          - paragraph [ref=f6e44]: Yuklanmoqda...
+      - generic [ref=f6e46]:
+        - link [ref=f6e47] [cursor=pointer]:
+          - /url: /dashboard
+        - link [ref=f6e53] [cursor=pointer]:
+          - /url: /suppliers
+        - link [ref=f6e59] [cursor=pointer]:
+          - /url: /customers
+        - link [ref=f6e65] [cursor=pointer]:
+          - /url: /milk-purchases
+        - link "Sotuvlar" [ref=f6e69] [cursor=pointer]:
+          - /url: /sales

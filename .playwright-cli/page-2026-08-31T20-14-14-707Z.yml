@@ -1,0 +1,172 @@
+- generic:
+  - generic:
+    - list
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - heading [level=1]: DailyDairy
+                - paragraph: Sut mahsulotlari boshqaruvi
+            - navigation:
+              - link:
+                - /url: /dashboard
+                - text: Boshqaruv paneli
+              - link:
+                - /url: /suppliers
+                - text: Yetkazib beruvchilar
+              - link:
+                - /url: /customers
+                - text: Mijozlar
+              - link:
+                - /url: /products
+                - text: Mahsulotlar
+              - link:
+                - /url: /milk-purchases
+                - text: Sut xaridlari
+              - link:
+                - /url: /sales
+                - text: Sotuvlar
+              - generic: Administratsiya
+              - link:
+                - /url: /users
+                - text: Foydalanuvchilarni boshqarish
+              - link:
+                - /url: /admin-sessions
+                - text: Admin sessiyalari
+            - generic:
+              - generic:
+                - generic:
+                  - paragraph: preview
+                  - paragraph: Admin
+                - button
+      - generic:
+        - generic:
+          - button
+          - generic: DailyDairy
+        - main:
+          - generic:
+            - generic:
+              - generic:
+                - paragraph: Kunlik hisob
+                - heading [level=1]: Sotuvlar
+                - paragraph: Mahsulot chiqimini tez yozing va bugungi tushumni ko'ring.
+              - button [expanded]:
+                - generic: Yozish
+            - generic:
+              - generic:
+                - generic:
+                  - paragraph: Bugungi sotuv
+                  - paragraph: 60.0 Litr, 8.0 Kg
+              - generic:
+                - generic:
+                  - paragraph: Bugungi tushum
+                  - paragraph: 646,000 so'm
+              - generic:
+                - generic:
+                  - paragraph: Yozuvlar
+                  - paragraph: "2"
+              - generic:
+                - generic:
+                  - paragraph: Mahsulotlar
+                  - paragraph: "3"
+            - generic:
+              - textbox:
+                - /placeholder: Mijoz, mahsulot yoki sana bo'yicha qidirish
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=2]: Market A
+                        - generic: Bugun
+                      - generic: Sut
+                      - generic: 2026-09-01
+                    - button:
+                      - generic: Sotuv amallari
+                  - generic:
+                    - generic:
+                      - paragraph: Miqdor
+                      - paragraph: 60.0 Litr
+                    - generic:
+                      - paragraph: Narx
+                      - paragraph: 6,500 so'm
+                    - generic:
+                      - paragraph: Jami
+                      - paragraph: 390,000 so'm
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=2]: Do'kon B
+                        - generic: Bugun
+                      - generic: Tvorog
+                      - generic: 2026-09-01
+                    - button:
+                      - generic: Sotuv amallari
+                  - generic:
+                    - generic:
+                      - paragraph: Miqdor
+                      - paragraph: 8.0 Kg
+                    - generic:
+                      - paragraph: Narx
+                      - paragraph: 32,000 so'm
+                    - generic:
+                      - paragraph: Jami
+                      - paragraph: 256,000 so'm
+        - generic:
+          - generic:
+            - link:
+              - /url: /dashboard
+            - link:
+              - /url: /suppliers
+            - link:
+              - /url: /customers
+            - link:
+              - /url: /milk-purchases
+            - link:
+              - /url: /sales
+              - generic: Sotuvlar
+  - dialog [ref=f6e132]:
+    - generic [ref=f6e133]:
+      - generic [ref=f6e134]:
+        - heading "Yangi sotuv" [level=2] [ref=f6e135]
+        - paragraph [ref=f6e136]: Sana bugungi kun bilan boshlanadi. Mahsulot tanlansa, katalogdagi narx avtomatik qo'yiladi.
+      - generic [ref=f6e137]:
+        - generic [ref=f6e138]:
+          - generic [ref=f6e139]:
+            - text: Mijoz
+            - combobox "Mijoz" [active] [ref=f6e140]:
+              - option "Mijozni tanlang" [selected]
+              - option "Market A"
+              - option "Do'kon B"
+          - generic [ref=f6e141]:
+            - text: Mahsulot
+            - combobox "Mahsulot" [ref=f6e142]:
+              - option "Mahsulotni tanlang" [selected]
+              - option "Sut - Litr"
+              - option "Tvorog - Kg"
+              - option "Qatiq - Dona"
+          - generic [ref=f6e143]:
+            - generic [ref=f6e144]:
+              - text: Sana
+              - textbox "Sana" [ref=f6e145]: 2026-09-01
+            - generic [ref=f6e146]:
+              - text: Miqdor
+              - spinbutton "Miqdor" [ref=f6e147]: "0"
+          - generic [ref=f6e148]:
+            - generic [ref=f6e149]: Birlik narxi
+            - generic [ref=f6e151]:
+              - spinbutton "Birlik narxi" [ref=f6e152]: "0"
+              - button "Katalog narxini qo'yish" [ref=f6e153] [cursor=pointer]
+            - paragraph [ref=f6e155]: Narx avtomatik to'ladi, lekin kerak bo'lsa shu sotuv uchun o'zgartirasiz.
+        - generic [ref=f6e157]:
+          - generic [ref=f6e158]: Jami tushum
+          - strong [ref=f6e159]: 0 so'm
+      - generic [ref=f6e160]:
+        - button "Bekor qilish" [ref=f6e161] [cursor=pointer]
+        - button "Saqlash" [ref=f6e162] [cursor=pointer]
+    - button "Close" [ref=f6e163] [cursor=pointer]

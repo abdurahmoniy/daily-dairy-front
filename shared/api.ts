@@ -1,4 +1,8 @@
 // User types
+export interface DemoResponse {
+  message: string;
+}
+
 export interface User {
   id: number;
   username: string;
@@ -175,9 +179,17 @@ export interface DashboardData {
   summary: {
     totalMilkPurchased: number;
     totalMilkSold: number;
+    totalSalesQuantity: number;
     totalPurchaseCost: number;
     totalSalesRevenue: number;
     grossProfit: number;
+    averagePurchasePricePerLiter: number;
+    averageSalesPricePerLiter: number;
+    salesQuantityByUnit: Array<{
+      unit: string;
+      quantity: number;
+      revenue: number;
+    }>;
   };
   purchasesOverTime: Array<{
     date: string;
@@ -200,6 +212,11 @@ export interface DashboardData {
     customerId: number;
     customerName: string;
     totalLitersBought: number;
+    salesQuantityByUnit: Array<{
+      unit: string;
+      quantity: number;
+      revenue: number;
+    }>;
     totalRevenue: number;
   }>;
   productBreakdown: Array<{
@@ -215,9 +232,17 @@ export interface AllTimeData {
   summary: {
     totalMilkPurchased: number;
     totalMilkSold: number;
+    totalSalesQuantity: number;
     totalPurchaseCost: number;
     totalSalesRevenue: number;
     grossProfit: number;
+    averagePurchasePricePerLiter: number;
+    averageSalesPricePerLiter: number;
+    salesQuantityByUnit: Array<{
+      unit: string;
+      quantity: number;
+      revenue: number;
+    }>;
   };
   supplierBreakdown: Array<{
     supplierId: number;
@@ -231,6 +256,11 @@ export interface AllTimeData {
     customerId: number;
     customerName: string;
     totalLitersBought: number;
+    salesQuantityByUnit: Array<{
+      unit: string;
+      quantity: number;
+      revenue: number;
+    }>;
     totalRevenue: number;
     totalTransactions: number;
     averagePricePerLiter: number;

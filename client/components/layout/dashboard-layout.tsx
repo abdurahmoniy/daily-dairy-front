@@ -1,11 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
+import { getDailyWorkMobileNavigation } from "@/lib/daily-work";
 import { cn } from "@/lib/utils";
 import {
+  BarChart3,
   LayoutDashboard,
   LogOut,
   Menu,
   Milk,
+  MoreHorizontal,
   Package,
   Shield,
   ShoppingCart,
@@ -20,14 +23,29 @@ interface DashboardLayoutProps {
   children: ReactNode;
 }
 
-const navigation = [
-  { name: "Boshqaruv paneli", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Yetkazib beruvchilar", href: "/suppliers", icon: Truck },
-  { name: "Mijozlar", href: "/customers", icon: Users },
-  { name: "Mahsulotlar", href: "/products", icon: Package },
-  { name: "Sut xaridlari", href: "/milk-purchases", icon: Milk },
-  { name: "Sotuvlar", href: "/sales", icon: ShoppingCart },
-  // { name: "Hisobotlar", href: "/reports", icon: BarChart3 },
+const navigationSections = [
+  {
+    title: "Kunlik ishlar",
+    items: [
+      { name: "Boshqaruv paneli", href: "/dashboard", icon: LayoutDashboard },
+      { name: "Sut xaridi", href: "/milk-purchases", icon: Milk },
+      { name: "Sotuv", href: "/sales", icon: ShoppingCart },
+    ],
+  },
+  {
+    title: "Tahlil",
+    items: [
+      { name: "Dashboard", href: "/analytics-dashboard", icon: BarChart3 },
+    ],
+  },
+  {
+    title: "Ma'lumotlar",
+    items: [
+      { name: "Mijozlar", href: "/customers", icon: Users },
+      { name: "Yetkazib beruvchilar", href: "/suppliers", icon: Truck },
+      { name: "Mahsulotlar", href: "/products", icon: Package },
+    ],
+  },
 ];
 
 const adminNavigation = [
@@ -36,14 +54,18 @@ const adminNavigation = [
   // { name: "Tizim sozlamalari", href: "/settings", icon: Settings },
 ];
 
-// Mobile bottom navigation items (limited to 5 most important)
-const mobileNavigation = [
-  { name: "Boshqaruv", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Yetkazuvchilar", href: "/suppliers", icon: Truck },
-  { name: "Mijozlar", href: "/customers", icon: Users },
-  { name: "Sut xaridlari", href: "/milk-purchases", icon: Milk },
-  { name: "Sotuvlar", href: "/sales", icon: ShoppingCart },
-];
+const mobileIconMap = {
+  Boshqaruv: LayoutDashboard,
+  Xarid: Milk,
+  Sotuv: ShoppingCart,
+  Mijozlar: Users,
+  "Ko'proq": MoreHorizontal,
+};
+
+const mobileNavigation = getDailyWorkMobileNavigation().map((item) => ({
+  ...item,
+  icon: mobileIconMap[item.name as keyof typeof mobileIconMap],
+}));
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -78,22 +100,29 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 py-6 space-y-2">
-        {navigation.map((item) => (
-          <Link
-            key={item.name}
-            to={item.href}
-            onClick={() => setSidebarOpen(false)}
-            className={cn(
-              "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors",
-              isActiveRoute(item.href)
-                ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-            )}
-          >
-            <item.icon className="h-5 w-5" />
-            {item.name}
-          </Link>
+      <nav className="flex-1 px-4 py-6 space-y-5">
+        {navigationSections.map((section) => (
+          <div key={section.title} className="space-y-2">
+            <div className="px-3 text-xs font-semibold uppercase text-sidebar-foreground/60">
+              {section.title}
+            </div>
+            {section.items.map((item) => (
+              <Link
+                key={item.name}
+                to={item.href}
+                onClick={() => setSidebarOpen(false)}
+                className={cn(
+                  "flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-colors",
+                  isActiveRoute(item.href)
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                )}
+              >
+                <item.icon className="h-5 w-5" />
+                {item.name}
+              </Link>
+            ))}
+          </div>
         ))}
 
         {user?.role === "ADMIN" && (
@@ -158,7 +187,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       <div className={cn(
         "fixed inset-0 z-50 lg:hidden",
         sidebarOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
-      )} style={{ transition: 'opacity 0.3s' }}>
+      )} style={{ transition: 'opacity 0.3s' }} aria-hidden={!sidebarOpen}>
         {/* Overlay */}
         <div
           className={cn(
@@ -204,21 +233,31 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border z-40">
           <div className="flex items-center justify-around px-2 py-2">
             {mobileNavigation.map((item) => (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={cn(
-                  "flex flex-col items-center justify-center px-3 py-2 rounded-lg transition-colors min-w-0 flex-1",
-                  isActiveRoute(item.href)
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                )}
-              >
-                <item.icon className="h-5 w-5" />
-                {isActiveRoute(item.href) && (
-                  <span className="text-xs font-medium truncate mt-1">{item.name}</span>
-                )}
-              </Link>
+              item.href ? (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={cn(
+                    "flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center rounded-lg px-2 py-2 transition-colors",
+                    isActiveRoute(item.href)
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                  )}
+                >
+                  <item.icon className="h-5 w-5" />
+                  <span className="mt-1 text-[11px] font-medium">{item.name}</span>
+                </Link>
+              ) : (
+                <button
+                  key={item.name}
+                  type="button"
+                  onClick={() => setSidebarOpen(true)}
+                  className="flex min-h-12 min-w-0 flex-1 flex-col items-center justify-center rounded-lg px-2 py-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                >
+                  <item.icon className="h-5 w-5" />
+                  <span className="mt-1 text-[11px] font-medium">{item.name}</span>
+                </button>
+              )
             ))}
           </div>
         </div>

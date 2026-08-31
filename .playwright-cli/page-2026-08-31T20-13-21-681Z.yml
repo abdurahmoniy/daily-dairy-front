@@ -1,0 +1,163 @@
+- generic:
+  - generic:
+    - list
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - heading [level=1]: DailyDairy
+                - paragraph: Sut mahsulotlari boshqaruvi
+            - navigation:
+              - link:
+                - /url: /dashboard
+                - text: Boshqaruv paneli
+              - link:
+                - /url: /suppliers
+                - text: Yetkazib beruvchilar
+              - link:
+                - /url: /customers
+                - text: Mijozlar
+              - link:
+                - /url: /products
+                - text: Mahsulotlar
+              - link:
+                - /url: /milk-purchases
+                - text: Sut xaridlari
+              - link:
+                - /url: /sales
+                - text: Sotuvlar
+              - generic: Administratsiya
+              - link:
+                - /url: /users
+                - text: Foydalanuvchilarni boshqarish
+              - link:
+                - /url: /admin-sessions
+                - text: Admin sessiyalari
+            - generic:
+              - generic:
+                - generic:
+                  - paragraph: preview
+                  - paragraph: Admin
+                - button
+      - generic:
+        - generic:
+          - button
+          - generic: DailyDairy
+        - main:
+          - generic:
+            - generic:
+              - generic:
+                - paragraph: Kunlik hisob
+                - heading [level=1]: Sut xaridlari
+                - paragraph: Sut kirimini tez yozing va bugungi umumiy xarajatni ko'ring.
+              - button [expanded]:
+                - generic: Yozish
+            - generic:
+              - generic:
+                - generic:
+                  - paragraph: Bugun olindi
+                  - paragraph: 200.0 L
+              - generic:
+                - generic:
+                  - paragraph: Bugungi xarajat
+                  - paragraph: 848,000 so'm
+              - generic:
+                - generic:
+                  - paragraph: Yozuvlar
+                  - paragraph: "2"
+              - generic:
+                - generic:
+                  - paragraph: Standart narx
+                  - paragraph: Belgilanmagan
+            - generic:
+              - textbox:
+                - /placeholder: Yetkazuvchi yoki sana bo'yicha qidirish
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=2]: Ali fermer
+                        - generic: Bugun
+                      - generic: 2026-09-01
+                    - button:
+                      - generic: Xarid amallari
+                  - generic:
+                    - generic:
+                      - paragraph: Miqdor
+                      - paragraph: 120.0 L
+                    - generic:
+                      - paragraph: Narx
+                      - paragraph: 4,200 so'm
+                    - generic:
+                      - paragraph: Jami
+                      - paragraph: 504,000 so'm
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - heading [level=2]: Vali fermer
+                        - generic: Bugun
+                      - generic: 2026-09-01
+                    - button:
+                      - generic: Xarid amallari
+                  - generic:
+                    - generic:
+                      - paragraph: Miqdor
+                      - paragraph: 80.0 L
+                    - generic:
+                      - paragraph: Narx
+                      - paragraph: 4,300 so'm
+                    - generic:
+                      - paragraph: Jami
+                      - paragraph: 344,000 so'm
+        - generic:
+          - generic:
+            - link:
+              - /url: /dashboard
+            - link:
+              - /url: /suppliers
+            - link:
+              - /url: /customers
+            - link:
+              - /url: /milk-purchases
+              - generic: Sut xaridlari
+            - link:
+              - /url: /sales
+  - dialog [ref=f5e122]:
+    - generic [ref=f5e123]:
+      - generic [ref=f5e124]:
+        - heading "Yangi sut xaridi" [level=2] [ref=f5e125]
+        - paragraph [ref=f5e126]: Sana bugungi kun bilan, narx esa saqlangan standart qiymat bilan boshlanadi.
+      - generic [ref=f5e127]:
+        - generic [ref=f5e128]:
+          - generic [ref=f5e129]:
+            - text: Yetkazib beruvchi
+            - combobox "Yetkazib beruvchi" [active] [ref=f5e130]:
+              - option "Yetkazib beruvchini tanlang" [selected]
+              - option "Ali fermer"
+              - option "Vali fermer"
+          - generic [ref=f5e131]:
+            - generic [ref=f5e132]:
+              - text: Sana
+              - textbox "Sana" [ref=f5e133]: 2026-09-01
+            - generic [ref=f5e134]:
+              - text: Miqdor, litr
+              - spinbutton "Miqdor, litr" [ref=f5e135]: "0"
+          - generic [ref=f5e136]:
+            - generic [ref=f5e137]: 1 litr narxi
+            - generic [ref=f5e139]:
+              - spinbutton "1 litr narxi" [ref=f5e140]: "0"
+              - button "Standart narx sifatida saqlash" [ref=f5e141] [cursor=pointer]
+            - paragraph [ref=f5e143]: Narxni o'zgartirish mumkin. Disketka tugmasi shu narxni keyingi xaridlar uchun saqlaydi.
+        - generic [ref=f5e145]:
+          - generic [ref=f5e146]: Jami summa
+          - strong [ref=f5e147]: 0 so'm
+      - generic [ref=f5e148]:
+        - button "Bekor qilish" [ref=f5e149] [cursor=pointer]
+        - button "Saqlash" [ref=f5e150] [cursor=pointer]
+    - button "Close" [ref=f5e151] [cursor=pointer]

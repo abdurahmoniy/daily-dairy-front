@@ -1,0 +1,21 @@
+- generic [ref=f2e2]:
+  - region "Notifications (F8)":
+    - list
+  - generic [ref=f2e4]:
+    - generic [ref=f2e5]:
+      - heading "DailyDairy" [level=1] [ref=f2e11]
+      - heading "Xush kelibsiz" [level=2] [ref=f2e12]
+      - paragraph [ref=f2e13]: Sut mahsulotlari boshqaruv hisobingizga kiring
+    - generic [ref=f2e15]:
+      - generic [ref=f2e16]:
+        - text: Foydalanuvchi nomi
+        - textbox "Foydalanuvchi nomi" [ref=f2e17]:
+          - /placeholder: Foydalanuvchi nomini kiriting
+      - generic [ref=f2e18]:
+        - text: Parol
+        - generic [ref=f2e19]:
+          - textbox "Parol" [ref=f2e20]:
+            - /placeholder: Parolni kiriting
+          - button [ref=f2e21] [cursor=pointer]
+      - button "Kirish" [ref=f2e22] [cursor=pointer]
+    - paragraph [ref=f2e24]: © 2025 DailyDairy. Modern dairy management solution.

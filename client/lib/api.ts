@@ -22,8 +22,10 @@ import {
   ApiError,
 } from "@shared/api";
 
-// const API_BASE_URL = "http://localhost:5000/api";
-const API_BASE_URL = "https://daily-dairy-backend-production.up.railway.app/api";
+const configuredApiUrl = import.meta.env.VITE_API_URL || "http://localhost:5001";
+const API_BASE_URL = configuredApiUrl.endsWith("/api")
+  ? configuredApiUrl
+  : `${configuredApiUrl.replace(/\/$/, "")}/api`;
 
 // Dashboard data interfaces
 interface DashboardData {
@@ -34,9 +36,17 @@ interface DashboardData {
   summary: {
     totalMilkPurchased: number;
     totalMilkSold: number;
+    totalSalesQuantity: number;
     totalPurchaseCost: number;
     totalSalesRevenue: number;
     grossProfit: number;
+    averagePurchasePricePerLiter: number;
+    averageSalesPricePerLiter: number;
+    salesQuantityByUnit: Array<{
+      unit: string;
+      quantity: number;
+      revenue: number;
+    }>;
   };
   purchasesOverTime: Array<{
     date: string;
@@ -45,6 +55,9 @@ interface DashboardData {
   salesOverTime: Array<{
     date: string;
     totalLiters: number;
+    totalKg: number;
+    totalUnits: number;
+    totalQuantity: number;
   }>;
   supplierBreakdown: Array<{
     supplierId: number;
@@ -56,11 +69,17 @@ interface DashboardData {
     customerId: number;
     customerName: string;
     totalLitersBought: number;
+    salesQuantityByUnit: Array<{
+      unit: string;
+      quantity: number;
+      revenue: number;
+    }>;
     totalRevenue: number;
   }>;
   productBreakdown: Array<{
     productId: number;
     productName: string;
+    productUnit?: string;
     unitsSold: number;
     totalRevenue: number;
   }>;
@@ -70,9 +89,17 @@ interface AllTimeData {
   summary: {
     totalMilkPurchased: number;
     totalMilkSold: number;
+    totalSalesQuantity: number;
     totalPurchaseCost: number;
     totalSalesRevenue: number;
     grossProfit: number;
+    averagePurchasePricePerLiter: number;
+    averageSalesPricePerLiter: number;
+    salesQuantityByUnit: Array<{
+      unit: string;
+      quantity: number;
+      revenue: number;
+    }>;
   };
   supplierBreakdown: Array<{
     supplierId: number;
@@ -86,6 +113,11 @@ interface AllTimeData {
     customerId: number;
     customerName: string;
     totalLitersBought: number;
+    salesQuantityByUnit: Array<{
+      unit: string;
+      quantity: number;
+      revenue: number;
+    }>;
     totalRevenue: number;
     totalTransactions: number;
     averagePricePerLiter: number;
@@ -93,6 +125,7 @@ interface AllTimeData {
   productBreakdown: Array<{
     productId: number;
     productName: string;
+    productUnit?: string;
     unitsSold: number;
     totalRevenue: number;
     totalTransactions: number;

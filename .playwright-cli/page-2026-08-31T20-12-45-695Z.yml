@@ -1,0 +1,71 @@
+- generic [ref=f5e2]:
+  - region "Notifications (F8)":
+    - list
+  - generic [ref=f5e3]:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - heading "DailyDairy" [level=1]
+              - paragraph: Sut mahsulotlari boshqaruvi
+          - navigation:
+            - link "Boshqaruv paneli":
+              - /url: /dashboard
+            - link "Yetkazib beruvchilar":
+              - /url: /suppliers
+            - link "Mijozlar":
+              - /url: /customers
+            - link "Mahsulotlar":
+              - /url: /products
+            - link "Sut xaridlari":
+              - /url: /milk-purchases
+            - link "Sotuvlar":
+              - /url: /sales
+            - generic: Administratsiya
+            - link "Foydalanuvchilarni boshqarish":
+              - /url: /users
+            - link "Admin sessiyalari":
+              - /url: /admin-sessions
+          - generic:
+            - generic:
+              - generic:
+                - paragraph: preview
+                - paragraph: Admin
+              - button
+    - generic [ref=f5e4]:
+      - generic [ref=f5e5]:
+        - button [ref=f5e6] [cursor=pointer]
+        - generic [ref=f5e7]: DailyDairy
+      - main [ref=f5e12]:
+        - generic [ref=f5e13]:
+          - generic [ref=f5e15]:
+            - paragraph [ref=f5e16]: Kunlik hisob
+            - heading "Sut xaridlari" [level=1] [ref=f5e17]
+            - paragraph [ref=f5e18]: Sut kirimini tez yozing va bugungi umumiy xarajatni ko'ring.
+          - generic [ref=f5e19]:
+            - generic [ref=f5e21]:
+              - paragraph [ref=f5e22]: Bugun olindi
+              - paragraph [ref=f5e23]: 0.0 L
+            - generic [ref=f5e25]:
+              - paragraph [ref=f5e26]: Bugungi xarajat
+              - paragraph [ref=f5e27]: 0 so'm
+            - generic [ref=f5e29]:
+              - paragraph [ref=f5e30]: Yozuvlar
+              - paragraph [ref=f5e31]: "0"
+            - generic [ref=f5e33]:
+              - paragraph [ref=f5e34]: Standart narx
+              - paragraph [ref=f5e35]: Belgilanmagan
+          - textbox "Yetkazuvchi yoki sana bo'yicha qidirish" [ref=f5e40]
+          - paragraph [ref=f5e44]: Yuklanmoqda...
+      - generic [ref=f5e46]:
+        - link [ref=f5e47] [cursor=pointer]:
+          - /url: /dashboard
+        - link [ref=f5e53] [cursor=pointer]:
+          - /url: /suppliers
+        - link [ref=f5e59] [cursor=pointer]:
+          - /url: /customers
+        - link "Sut xaridlari" [ref=f5e65] [cursor=pointer]:
+          - /url: /milk-purchases
+        - link [ref=f5e70] [cursor=pointer]:
+          - /url: /sales
