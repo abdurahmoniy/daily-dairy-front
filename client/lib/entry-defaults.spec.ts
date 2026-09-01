@@ -44,6 +44,10 @@ describe("entry defaults", () => {
     expect(calculateEntryTotal(12.345, 4567.891)).toBe(56390.61);
   });
 
+  it("calculates totals when quantity is entered with a comma decimal", () => {
+    expect(calculateEntryTotal("1,5", 7000)).toBe(10500);
+  });
+
   it("stores and reads the editable default milk price", () => {
     const storage = new MemoryStorage();
     saveDefaultMilkPrice(storage, 4200);

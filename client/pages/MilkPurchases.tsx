@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { useUser } from "@/hooks/useUser";
 import { apiClient } from "@/lib/api";
 import { DAILY_FILTERS, DailyFilter, buildPurchaseDefaults, filterEntriesByPeriod } from "@/lib/daily-work";
-import { calculateEntryTotal, formatCurrencyPlain, getDefaultMilkPrice, getTodayInputValue, saveDefaultMilkPrice } from "@/lib/entry-defaults";
+import { calculateEntryTotal, formatCurrencyPlain, getDefaultMilkPrice, getTodayInputValue, parseDecimalInput, saveDefaultMilkPrice } from "@/lib/entry-defaults";
 import { cn } from "@/lib/utils";
 import { CreateMilkPurchaseRequest, MilkPurchase, Supplier } from "@shared/api";
 import { format } from "date-fns";
@@ -147,6 +147,8 @@ export default function MilkPurchases() {
   const quantityLiters = watch("quantityLiters");
   const pricePerLiter = watch("pricePerLiter");
   const total = calculateEntryTotal(quantityLiters, pricePerLiter);
+  const validatePositiveDecimal = (value: number | string) =>
+    parseDecimalInput(value) > 0 || "Miqdor 0 dan katta bo'lishi kerak";
 
   useEffect(() => {
     setValue("total", total);
@@ -165,7 +167,7 @@ export default function MilkPurchases() {
       const payload = {
         ...data,
         date: new Date(data.date).toISOString(),
-        quantityLiters: Number(data.quantityLiters),
+        quantityLiters: parseDecimalInput(data.quantityLiters),
         pricePerLiter: Number(data.pricePerLiter),
         total,
         supplierId: Number(data.supplierId),
@@ -260,11 +262,12 @@ export default function MilkPurchases() {
                           <Label htmlFor="quantityLiters">Miqdor, litr</Label>
                           <Input
                             id="quantityLiters"
-                            type="number"
+                            type="text"
                             inputMode="decimal"
+                            pattern="[0-9]*[.,]?[0-9]*"
                             step="0.01"
                             className="h-12 text-base"
-                            {...register("quantityLiters", { required: "Miqdor majburiy", min: 0 })}
+                            {...register("quantityLiters", { required: "Miqdor majburiy", validate: validatePositiveDecimal })}
                           />
                           {errors.quantityLiters && <p className="text-sm text-destructive">{errors.quantityLiters.message}</p>}
                         </div>

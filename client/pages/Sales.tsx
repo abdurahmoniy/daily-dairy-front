@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { useUser } from "@/hooks/useUser";
 import { apiClient } from "@/lib/api";
 import { DAILY_FILTERS, DailyFilter, buildSaleDefaults, filterEntriesByPeriod } from "@/lib/daily-work";
-import { calculateEntryTotal, formatCurrencyPlain, getTodayInputValue } from "@/lib/entry-defaults";
+import { calculateEntryTotal, formatCurrencyPlain, getTodayInputValue, parseDecimalInput } from "@/lib/entry-defaults";
 import { cn } from "@/lib/utils";
 import { CreateSaleRequest, Customer, Product, Sale } from "@shared/api";
 import { format } from "date-fns";
@@ -119,6 +119,8 @@ export default function Sales() {
   const quantity = watch("quantity");
   const pricePerUnit = watch("pricePerUnit");
   const total = calculateEntryTotal(quantity, pricePerUnit);
+  const validatePositiveDecimal = (value: number | string) =>
+    parseDecimalInput(value) > 0 || "Miqdor 0 dan katta bo'lishi kerak";
 
   const todaySummary = useMemo(() => {
     const todaySales = sales.filter((sale) => formatInputDate(sale.date) === today);
@@ -195,7 +197,7 @@ export default function Sales() {
       const payload = {
         ...data,
         date: new Date(data.date).toISOString(),
-        quantity: Number(data.quantity),
+        quantity: parseDecimalInput(data.quantity),
         pricePerUnit: Number(data.pricePerUnit),
         total,
         customerId: Number(data.customerId),
@@ -310,11 +312,12 @@ export default function Sales() {
                           <Label htmlFor="quantity">Miqdor{selectedProduct?.unit ? `, ${selectedProduct.unit}` : ""}</Label>
                           <Input
                             id="quantity"
-                            type="number"
+                            type="text"
                             inputMode="decimal"
+                            pattern="[0-9]*[.,]?[0-9]*"
                             step="0.01"
                             className="h-12 text-base"
-                            {...register("quantity", { required: "Miqdor talab etiladi", min: 0 })}
+                            {...register("quantity", { required: "Miqdor talab etiladi", validate: validatePositiveDecimal })}
                           />
                           {errors.quantity && <p className="text-sm text-destructive">{errors.quantity.message}</p>}
                         </div>

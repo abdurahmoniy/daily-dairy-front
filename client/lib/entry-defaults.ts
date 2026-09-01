@@ -7,8 +7,14 @@ export function getTodayInputValue(date = new Date()) {
   return `${year}-${month}-${day}`;
 }
 
+export function parseDecimalInput(value: number | string) {
+  const normalized = String(value ?? "").trim().replace(",", ".");
+  const number = Number(normalized);
+  return Number.isFinite(number) ? number : 0;
+}
+
 export function calculateEntryTotal(quantity: number | string, price: number | string) {
-  const total = Number(quantity || 0) * Number(price || 0);
+  const total = parseDecimalInput(quantity) * parseDecimalInput(price);
   return Math.round(total * 100) / 100;
 }
 
