@@ -12,6 +12,7 @@ import { useUser } from "@/hooks/useUser";
 import { apiClient } from "@/lib/api";
 import { DAILY_FILTERS, DailyFilter, buildPurchaseDefaults, filterEntriesByPeriod } from "@/lib/daily-work";
 import { calculateEntryTotal, formatCurrencyPlain, getDefaultMilkPrice, getTodayInputValue, parseDecimalInput, saveDefaultMilkPrice } from "@/lib/entry-defaults";
+import { attachSupplierToPurchase } from "@/lib/purchase-supplier";
 import { cn } from "@/lib/utils";
 import { CreateMilkPurchaseRequest, MilkPurchase, Supplier } from "@shared/api";
 import { format } from "date-fns";
@@ -175,13 +176,14 @@ export default function MilkPurchases() {
 
       if (editingPurchase) {
         const updated = await apiClient.updateMilkPurchase(editingPurchase.id, payload);
-        setPurchases(purchases.map((purchase) => (purchase.id === editingPurchase.id ? updated : purchase)));
+        const hydratedPurchase = attachSupplierToPurchase(updated, suppliers);
+        setPurchases(purchases.map((purchase) => (purchase.id === editingPurchase.id ? hydratedPurchase : purchase)));
         setIsSheetOpen(false);
         reset(buildPurchaseDefaults(defaultMilkPrice));
         setEditingPurchase(null);
       } else {
         const created = await apiClient.createMilkPurchase(payload);
-        setPurchases([created, ...purchases]);
+        setPurchases([attachSupplierToPurchase(created, suppliers), ...purchases]);
 
         if (keepAdding) {
           reset({
